@@ -92,10 +92,6 @@ begin
        TrayIcon1.BalloonHint  := msg;
   end;
 
-
-  //cnt:= cnt+1;
-  //if cnt = 1000 then cnt:=0;
-
   if ShowMessage then
   begin
      if (cnt mod 3 = 0) or ShowMessageUserReq then
@@ -116,7 +112,7 @@ begin
      end;
   end;
  //!!
-
+ //for merge
 //!!
 
 

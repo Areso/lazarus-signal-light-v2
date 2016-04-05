@@ -98,7 +98,7 @@ begin
      begin
           TrayIcon1.ShowBalloonHint;
           ShowMessageUserReq := false;
-
+          A :=A1;
           if A1 = 1 then
           begin
              TrayIcon1.Icon.Assign(MyIconGreen);
@@ -112,7 +112,7 @@ begin
      end;
   end;
  //!!
-
+ //for merge
 //!!
 
 
