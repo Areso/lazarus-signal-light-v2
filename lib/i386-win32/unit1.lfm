@@ -1,11 +1,13 @@
 object Form1: TForm1
   Left = 395
-  Height = 480
+  Height = 255
   Top = 142
-  Width = 767
+  Width = 533
+  BorderIcons = [biSystemMenu, biMinimize]
+  BorderStyle = bsSingle
   Caption = 'Information'
-  ClientHeight = 480
-  ClientWidth = 767
+  ClientHeight = 255
+  ClientWidth = 533
   Icon.Data = {
     7E04000000000100010010100000010020006804000016000000280000001000
     0000200000000100200000000000000400006400000064000000000000000000
@@ -52,37 +54,69 @@ object Form1: TForm1
     Left = 24
     Height = 96
     Top = 16
-    Width = 504
+    Width = 496
     Color = clWindow
     Columns = <>
     DataSource = DataSource1
     TabOrder = 0
   end
   object BtnCheck: TButton
-    Left = 24
+    Left = 445
     Height = 25
-    Top = 152
+    Top = 223
     Width = 75
     Caption = 'Check'
     OnClick = BtnCheckClick
     TabOrder = 1
   end
-  object Edit1: TEdit
-    Left = 185
+  object EditStatus: TEdit
+    Left = 88
     Height = 23
-    Top = 158
-    Width = 80
-    OnChange = Edit1Change
+    Top = 151
+    Width = 29
+    OnChange = EditStatusChange
     TabOrder = 2
-    Text = 'Edit1'
+    Text = '1'
   end
   object BtnUpdate: TButton
-    Left = 24
+    Left = 88
     Height = 25
-    Top = 184
+    Top = 223
     Width = 75
     Caption = 'Update'
+    OnClick = BtnUpdateClick
     TabOrder = 3
+  end
+  object Label1: TLabel
+    Left = 100
+    Height = 15
+    Top = 128
+    Width = 87
+    Caption = '0 - red, 1 - green'
+    ParentColor = False
+  end
+  object Label2: TLabel
+    Left = 24
+    Height = 15
+    Top = 152
+    Width = 42
+    Caption = 'STATUS'
+    ParentColor = False
+  end
+  object Label3: TLabel
+    Left = 24
+    Height = 15
+    Top = 191
+    Width = 61
+    Caption = 'COMMENT'
+    ParentColor = False
+  end
+  object EditComment: TEdit
+    Left = 88
+    Height = 23
+    Top = 191
+    Width = 432
+    TabOrder = 4
   end
   object DBConnection: TIBConnection
     Connected = False
@@ -95,28 +129,28 @@ object Form1: TForm1
     UserName = 'SYSDBA'
     HostName = '\\localhost\'
     LogEvents = []
-    left = 440
-    top = 232
+    left = 336
+    top = 144
   end
   object SQLTransaction1: TSQLTransaction
     Active = False
     Action = caNone
     Database = DBConnection
-    left = 288
-    top = 232
+    left = 448
+    top = 144
   end
   object SQLQuery1: TSQLQuery
     FieldDefs = <>
     Database = DBConnection
     Transaction = SQLTransaction1
     Params = <>
-    left = 208
-    top = 232
+    left = 392
+    top = 144
   end
   object DataSource1: TDataSource
     DataSet = SQLQuery1
-    left = 368
-    top = 232
+    left = 496
+    top = 144
   end
   object TrayIcon1: TTrayIcon
     BalloonFlags = bfWarning
@@ -125,12 +159,12 @@ object Form1: TForm1
     PopUpMenu = PopupMenu1
     Visible = True
     OnClick = TrayIcon1Click
-    left = 368
-    top = 120
+    left = 392
+    top = 96
   end
   object PopupMenu1: TPopupMenu
     left = 448
-    top = 120
+    top = 96
     object ButtonCheck: TMenuItem
       Caption = 'Проверить'
       OnClick = ButtonCheckClick
@@ -148,6 +182,6 @@ object Form1: TForm1
     Interval = 5000
     OnTimer = Timer1Timer
     left = 496
-    top = 120
+    top = 96
   end
 end

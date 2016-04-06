@@ -20,17 +20,22 @@ TForm1 = class(TForm)
     ButtonCheck: TMenuItem;
     ButtonExit: TMenuItem;
     ButtonHide: TMenuItem;
-    Edit1: TEdit;
+    EditStatus: TEdit;
+    EditComment: TEdit;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
     PopupMenu1: TPopupMenu;
     SQLQuery1: TSQLQuery;
     SQLTransaction1: TSQLTransaction;
     Timer1: TTimer;
     TrayIcon1: TTrayIcon;
     procedure BtnCheckClick(Sender: TObject);
+    procedure BtnUpdateClick(Sender: TObject);
     procedure ButtonHideClick(Sender: TObject);
     procedure ButtonExitClick(Sender: TObject);
     procedure ButtonCheckClick(Sender: TObject);
-    procedure Edit1Change(Sender: TObject);
+    procedure EditStatusChange(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure DBConnectionAfterConnect(Sender: TObject);
@@ -49,7 +54,7 @@ const
 
 var
   Form1: TForm1;
-  ShowMessage: boolean;
+  BlShowMessage: boolean;
   ShowMessageUserReq: boolean;
   cnt: integer;
   MyIconGreen, MyIconRed : TIcon;
@@ -88,17 +93,18 @@ begin
   begin
        A1                     := SQLQuery1.Fields[1].AsInteger;
        msg                    := SQLQuery1.Fields[2].AsString;
-       ShowMessage            := True;
+       BlShowMessage          := True;
        TrayIcon1.BalloonHint  := msg;
   end;
 
-  if ShowMessage then
+  cnt:=cnt+1;
+  if BlShowMessage then
   begin
-     if (cnt mod 3 = 0) or ShowMessageUserReq then
+     if (cnt mod 5 = 0) or ShowMessageUserReq then
      begin
           TrayIcon1.ShowBalloonHint;
           ShowMessageUserReq := false;
-          A :=A1;
+          A1:= A1;
           if A1 = 1 then
           begin
              TrayIcon1.Icon.Assign(MyIconGreen);
@@ -122,7 +128,9 @@ procedure TForm1.FormCreate(Sender: TObject);
 begin
   // Initialize parameters such as show message user, counters, icons,
   A1:=200;
-  ShowMessage := true;
+  cnt:=0;
+
+  BlShowMessage := true;
   ShowMessageUserReq := true;
   DBConnection.HostName := HostNameDB;
   TrayIcon1.Icons       := TImageList.Create(Self);
@@ -158,10 +166,35 @@ begin
     checking();
 end;
 
+procedure TForm1.BtnUpdateClick(Sender: TObject);
+var
+  a0:string;
+begin
+  //SQLQuery1.Close;
+  SQLQuery1.SQL.Clear;
+//W  SQLQuery1.SQL.Text      := 'update main a set status = '+EditStatus.Text+ 'where id = 1';
+  SQLQuery1.SQL.Text      := 'update main a set status = '+EditStatus.Text+' , comment = '+ QuotedStr(EditComment.Text)+' where id = 1';
+  a0:= SQLQuery1.SQL.Text;
+  ShowMessage(a0);
+  //W  SQLQuery1.SQL.Text      := 'update main a set status = 0 where id = 1';
+  DBConnection.Connected  := True;
+  SQLQuery1.ExecSQL;
+  // IF DataSet is open then transaction should be Commit and started again
+  If SQLTransaction1.Active Then SQLTransaction1.Commit;
+  SQLTransaction1.StartTransaction;
+ Try
+     //// try open DataSet
+     SQLQuery1.ExecSQL;
+  Except
+     // somthing goes wrong, get out of here and rollback transaction
+     SQLTransaction1.Rollback;
+ end;
+end;
+
 procedure TForm1.ButtonHideClick(Sender: TObject);
 begin
   //ButtonHideMessage
-  ShowMessage := false;
+  BlShowMessage := false;
 end;
 
 procedure TForm1.ButtonExitClick(Sender: TObject);
@@ -173,12 +206,12 @@ procedure TForm1.ButtonCheckClick(Sender: TObject);
 begin
    //ButtonCheck! Popup menu
    //User want to check message
-   ShowMessage := true;
+   BlShowMessage := true;
    ShowMessageUserReq := true;
    checking();
 end;
 
-procedure TForm1.Edit1Change(Sender: TObject);
+procedure TForm1.EditStatusChange(Sender: TObject);
 begin
 
 end;
@@ -207,7 +240,7 @@ end;
 procedure TForm1.TrayIcon1Click(Sender: TObject);
 begin
   TrayIcon1.BalloonTimeout:=0;
-  ShowMessage := false;
+  BlShowMessage := false;
 end;
 
 end.
