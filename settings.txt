@@ -1,1 +1,4 @@
 admin
+1
+ru
+localhost

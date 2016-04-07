@@ -25,6 +25,7 @@ TForm1 = class(TForm)
     Label1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
+    ButtonSound: TMenuItem;
     PopupMenu1: TPopupMenu;
     SQLQuery1: TSQLQuery;
     SQLTransaction1: TSQLTransaction;
@@ -39,6 +40,7 @@ TForm1 = class(TForm)
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure DBConnectionAfterConnect(Sender: TObject);
+    procedure ButtonSoundClick(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
     procedure TrayIcon1Click(Sender: TObject);
   private
@@ -49,8 +51,8 @@ TForm1 = class(TForm)
      procedure checking();
   end;
 
-const
-  HostNameDB = 'localhost';
+//const
+
 
 var
   Form1: TForm1;
@@ -59,8 +61,12 @@ var
   cnt: integer;
   MyIconGreen, MyIconRed : TIcon;
   A1: integer;
-  f:text;
+  f:text;     //settings
   role:widestring;
+  IntSound: integer;
+  HostNameDB: widestring;
+  lang:widestring;
+  f_lang:text //localisation
 implementation
 
 {$R *.lfm}
@@ -127,11 +133,19 @@ end;
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   // Initialize parameters such as show message user, counters, icons,
-  A1:=200;
-  cnt:=0;
-
-  BlShowMessage := true;
-  ShowMessageUserReq := true;
+  HostNameDB := 'localhost';
+  AssignFile(f,'settings.txt');//this should be universal
+  //AssignFile(f,'/settings.txt');//linux //though works fine on Windows too
+  reset(f);
+  readln(f,role);
+  readln(f,IntSound);
+  readln(f,lang);
+  readln(f,HostNameDB);
+  CloseFile(f);
+  A1  :=200;
+  cnt :=0;
+  BlShowMessage         := true;
+  ShowMessageUserReq    := true;
   DBConnection.HostName := HostNameDB;
   TrayIcon1.Icons       := TImageList.Create(Self);
   MyIconGreen           := TIcon.Create;
@@ -139,21 +153,8 @@ begin
   MyIconRed             := TIcon.Create;
   MyIconRed.LoadFromFile('traffic2-red.ico');
   IsClosed:=False;
-  //older
-  //If DBConnection.UserName <> 'SYSDBA' then
-  //begin
-  //   Hide();
-  //   WindowState := wsMinimized;
-  //end;
-  //newer path
-  AssignFile(f,'settings.txt');//this should be universal
-  //AssignFile(f,'/settings.txt');//linux //though works fine on Windows too
-  //AssignFile(f,'\abc.txt');//Windows
-  reset(f);
-  readln(f,role);
-  CloseFile(f);
   ButtonCheckClick(Self); // Hack for show icon on Windows 7. On Windows 8 and later works fine
-  If role <> 'admin' then
+  If role <> 'admin' then  //If DBConnection.UserName <> 'SYSDBA' then
   begin
      Hide();
      WindowState := wsMinimized;
@@ -167,18 +168,12 @@ begin
 end;
 
 procedure TForm1.BtnUpdateClick(Sender: TObject);
-var
-  a0:string;
 begin
-  //SQLQuery1.Close;
+  SQLQuery1.Close;
   SQLQuery1.SQL.Clear;
-//W  SQLQuery1.SQL.Text      := 'update main a set status = '+EditStatus.Text+ 'where id = 1';
-  SQLQuery1.SQL.Text      := 'update main a set status = '+EditStatus.Text+' , comment = '+#$0000+EditComment.Text+#$0000+' where id = 1';
-  a0:= SQLQuery1.SQL.Text;
-  ShowMessage(a0);
-  //W  SQLQuery1.SQL.Text      := 'update main a set status = 0 where id = 1';
+  SQLQuery1.SQL.Text      := 'update main a set status = '+EditStatus.Text+' , comment = '+ QuotedStr(EditComment.Text)+' where id = 1';
+  //ShowMessage(SQLQuery1.SQL.Text); for debug purpose
   DBConnection.Connected  := True;
-  SQLQuery1.ExecSQL;
   // IF DataSet is open then transaction should be Commit and started again
   If SQLTransaction1.Active Then SQLTransaction1.Commit;
   SQLTransaction1.StartTransaction;
@@ -199,6 +194,7 @@ end;
 
 procedure TForm1.ButtonExitClick(Sender: TObject);
 begin
+   TrayIcon1.Destroy;
    Application.Terminate();
 end;
 
@@ -216,8 +212,6 @@ begin
 
 end;
 
-
-
 procedure TForm1.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 begin
   //Good habbit to close connection and commit
@@ -225,9 +219,15 @@ begin
   SQLQuery1.Close;
   DBConnection.CloseTransactions;
   DBConnection.Close;
+  TrayIcon1.Destroy;
 end;
 
 procedure TForm1.DBConnectionAfterConnect(Sender: TObject);
+begin
+
+end;
+
+procedure TForm1.ButtonSoundClick(Sender: TObject);
 begin
 
 end;
