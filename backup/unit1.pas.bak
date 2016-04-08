@@ -63,7 +63,8 @@ var
   ShowMessageUserReq: boolean;
   cnt:            integer;
   MyIconGreen, MyIconRed : TIcon;
-  A1:             integer;
+  A1:             integer;  //status
+  A1_P:           integer; //previous status
   f:              text;     //settings
   role:           widestring;
   IntSound:       integer;
@@ -103,14 +104,18 @@ begin
      // somthing goes wrong, get out of here and rollback transaction
      SQLTransaction1.Rollback;
   end;
-  IsClosed   := A1  <> SQLQuery1.Fields[1].AsInteger;
-  If IsClosed then
-  begin
+  //IsClosed   := A1  <> SQLQuery1.Fields[1].AsInteger;
+  //If IsClosed then
+  //begin
        A1                     := SQLQuery1.Fields[1].AsInteger;
        msg                    := SQLQuery1.Fields[2].AsString;
-       BlShowMessage          := True;
+       If A1_P <> A1 then
+       begin
+          A1_P                :=A;
+          BlShowMessage       := true;
+       end;
        TrayIcon1.BalloonHint  := msg;
-  end;
+  //end;
 
   cnt:=cnt+1;
   if BlShowMessage then
@@ -119,6 +124,7 @@ begin
      begin
           TrayIcon1.ShowBalloonHint;
           ShowMessageUserReq := false;
+          //TrayIcon1.BalloonHint := msg;
           A1:= A1;
           if A1 = 1 then
           begin
@@ -140,17 +146,11 @@ begin
           end;
      end;
   end;
- //!!
- //for merge
-//!!
-
-
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   // Initialize parameters such as show message user, counters, icons,
-
   DBConnection.HostName      := 'localhost';
   DBConnection.DatabaseName  := 'mydb';
   AssignFile(f,'settings.txt');//this should be universal
@@ -203,11 +203,9 @@ begin
   MyIconRed.LoadFromFile('traffic2-red.ico');
   IsClosed:=False;
   ButtonCheckClick(Self); // Hack for show icon on Windows 7. On Windows 8 and later works fine
-  ShowMessage(role);
   d1 := AnsiCompareText(role,'admin');
-  ShowMessage(IntToStr(d1));
   //some magic here. UTF-8's 'admin' If role <> 'admin' then from line below...
-  If AnsiCompareText(role,'admin')=0 then  //If DBConnection.UserName <> 'SYSDBA' then
+  If role <> 'admin' then  //If DBConnection.UserName <> 'SYSDBA' then
   begin
      Hide();
      WindowState := wsMinimized;

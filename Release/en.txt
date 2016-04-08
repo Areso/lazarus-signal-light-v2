@@ -1,0 +1,10 @@
+﻿Information
+0 - red, 1 - green
+STATUS
+COMMENT
+Update
+Check
+Check
+Hide message
+Turn on/off sound
+Exit

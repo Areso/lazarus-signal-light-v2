@@ -1,0 +1,7 @@
+accounter
+0
+ru
+192.168.112.8
+mydb
+SYSDBA
+masterkey

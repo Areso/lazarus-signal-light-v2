@@ -1,7 +1,4 @@
 admin
-0
+1
 ru
-localhost
-mydb
-SYSDBA
-masterkey
+192.168.112.8
