@@ -66,7 +66,7 @@ var
   IntSound: integer;
   HostNameDB: widestring;
   lang:widestring;
-  f_lang:text //localisation
+  f_lang:text; //localisation
 implementation
 
 {$R *.lfm}
@@ -81,9 +81,9 @@ begin
   //checking
   SQLQuery1.Close;
   SQLQuery1.SQL.Clear;
-  SQLQuery1.SQL.Text     := 'SELECT * FROM MAIN';
-  DBConnection.Connected := True;
-  TrayIcon1.BalloonTimeout:=5000;
+  SQLQuery1.SQL.Text       := 'SELECT * FROM MAIN';
+  DBConnection.Connected   := True;
+  TrayIcon1.BalloonTimeout := 5000;
   // IF DataSet is open then transaction should be Commit and started again
   If SQLTransaction1.Active Then SQLTransaction1.Commit;
   SQLTransaction1.StartTransaction;
@@ -114,12 +114,20 @@ begin
           if A1 = 1 then
           begin
              TrayIcon1.Icon.Assign(MyIconGreen);
-             sndPlaySound('green.wav',SND_NODEFAULT Or SND_ASYNC);
+             {$IFDEF WINDOWS}
+             if IntSound = 1 then
+                sndPlaySound('green.wav',SND_NODEFAULT Or SND_ASYNC);
+             {$ELSE}
+             {$ENDIF}
           end
           else
           begin
              TrayIcon1.Icon.Assign(MyIconRed);
-             sndPlaySound('red.wav',SND_NODEFAULT Or SND_ASYNC);
+             {$IFDEF WINDOWS}
+             if IntSound = 1 then
+                sndPlaySound('red.wav',SND_NODEFAULT Or SND_ASYNC);
+             {$ELSE}
+             {$ENDIF}
           end;
      end;
   end;
@@ -177,13 +185,13 @@ begin
   // IF DataSet is open then transaction should be Commit and started again
   If SQLTransaction1.Active Then SQLTransaction1.Commit;
   SQLTransaction1.StartTransaction;
- Try
+  Try
      //// try open DataSet
      SQLQuery1.ExecSQL;
   Except
      // somthing goes wrong, get out of here and rollback transaction
      SQLTransaction1.Rollback;
- end;
+  end;
 end;
 
 procedure TForm1.ButtonHideClick(Sender: TObject);
@@ -229,7 +237,22 @@ end;
 
 procedure TForm1.ButtonSoundClick(Sender: TObject);
 begin
-
+  if IntSound = 1 then
+  begin
+    IntSound := 0;
+  end
+  else
+  begin
+    IntSound := 1;
+  end;
+  AssignFile(f,'settings.txt');//this should be universal
+  //AssignFile(f,'/settings.txt');//linux //though works fine on Windows too
+  rewrite(f); //Append for log file
+  writeln(f,role);
+  writeln(f,IntSound);
+  writeln(f,lang);
+  writeln(f,HostNameDB);
+  CloseFile(f);
 end;
 
 procedure TForm1.Timer1Timer(Sender: TObject);
@@ -239,7 +262,7 @@ end;
 
 procedure TForm1.TrayIcon1Click(Sender: TObject);
 begin
-  TrayIcon1.BalloonTimeout:=0;
+  TrayIcon1.BalloonTimeout :=0;
   BlShowMessage := false;
 end;
 

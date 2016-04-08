@@ -2,12 +2,12 @@ object Form1: TForm1
   Left = 395
   Height = 255
   Top = 142
-  Width = 533
+  Width = 528
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'Information'
   ClientHeight = 255
-  ClientWidth = 533
+  ClientWidth = 528
   Icon.Data = {
     7E04000000000100010010100000010020006804000016000000280000001000
     0000200000000100200000000000000400006400000064000000000000000000
@@ -88,7 +88,7 @@ object Form1: TForm1
     TabOrder = 3
   end
   object Label1: TLabel
-    Left = 100
+    Left = 88
     Height = 15
     Top = 128
     Width = 87
@@ -129,14 +129,14 @@ object Form1: TForm1
     UserName = 'SYSDBA'
     HostName = '\\localhost\'
     LogEvents = []
-    left = 336
+    left = 328
     top = 144
   end
   object SQLTransaction1: TSQLTransaction
     Active = False
     Action = caNone
     Database = DBConnection
-    left = 448
+    left = 440
     top = 144
   end
   object SQLQuery1: TSQLQuery
@@ -144,7 +144,7 @@ object Form1: TForm1
     Database = DBConnection
     Transaction = SQLTransaction1
     Params = <>
-    left = 392
+    left = 384
     top = 144
   end
   object DataSource1: TDataSource
@@ -159,11 +159,11 @@ object Form1: TForm1
     PopUpMenu = PopupMenu1
     Visible = True
     OnClick = TrayIcon1Click
-    left = 392
+    left = 384
     top = 96
   end
   object PopupMenu1: TPopupMenu
-    left = 448
+    left = 440
     top = 96
     object ButtonCheck: TMenuItem
       Caption = 'Проверить'
@@ -172,6 +172,10 @@ object Form1: TForm1
     object ButtonHide: TMenuItem
       Caption = 'Скрыть сообщение'
       OnClick = ButtonHideClick
+    end
+    object ButtonSound: TMenuItem
+      Caption = 'Вкл./выкл. звук'
+      OnClick = ButtonSoundClick
     end
     object ButtonExit: TMenuItem
       Caption = 'Выход'
