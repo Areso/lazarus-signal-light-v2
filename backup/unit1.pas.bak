@@ -1,5 +1,8 @@
 unit Unit1;
-
+{
+ This is free programm under GPLv2 (or later - as option) license.
+ Authors: Anton Gladyshev, Egor Shishkin
+}
 {$mode objfpc}{$H+}
 
 interface
@@ -55,18 +58,24 @@ TForm1 = class(TForm)
 
 
 var
-  Form1: TForm1;
-  BlShowMessage: boolean;
+  Form1:          TForm1;
+  BlShowMessage:  boolean;
   ShowMessageUserReq: boolean;
-  cnt: integer;
+  cnt:            integer;
   MyIconGreen, MyIconRed : TIcon;
-  A1: integer;
-  f:text;     //settings
-  role:widestring;
-  IntSound: integer;
-  HostNameDB: widestring;
-  lang:widestring;
-  f_lang:text; //localisation
+  A1:             integer;
+  f:              text;     //settings
+  role:           widestring;
+  IntSound:       integer;
+  HostNameDB:     widestring;
+  DBName:         widestring;
+  DBUsername:     widestring;
+  DBPassword:     widestring;
+  lang:           widestring;
+  f_lang:         text; //localisation
+  captions_local: array[0..9] of widestring;
+  i:              integer; //cycle counter
+  d1:             integer; //debug purpose
 implementation
 
 {$R *.lfm}
@@ -74,8 +83,8 @@ implementation
 { TForm1 }
 procedure TForm1.checking();
 var
-  msg: string;
-  res: integer;
+  msg:  string;
+  res:  integer;
   temp: word;
 begin
   //checking
@@ -141,20 +150,52 @@ end;
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   // Initialize parameters such as show message user, counters, icons,
-  HostNameDB := 'localhost';
+
+  DBConnection.HostName      := 'localhost';
+  DBConnection.DatabaseName  := 'mydb';
   AssignFile(f,'settings.txt');//this should be universal
   //AssignFile(f,'/settings.txt');//linux //though works fine on Windows too
   reset(f);
-  readln(f,role);
-  readln(f,IntSound);
-  readln(f,lang);
-  readln(f,HostNameDB);
+  readln(f, role);
+  readln(f, IntSound);
+  readln(f, lang);
+  readln(f, HostNameDB);
+  readln(f, DBName);
+  readln(f, DBUsername);
+  readln(f, DBPassword);
   CloseFile(f);
+
+  DBConnection.HostName       := HostNameDB;
+  DBConnection.DatabaseName   := DBName;
+  DBConnection.UserName       := DBUsername;
+  DBConnection.Password       := DBPassword;
+
+  cnt :=0;
+  AssignFile(f_lang, lang+'.txt');
+  reset(f_lang);
+  While cnt<10 Do
+  begin
+       readln(f_lang,captions_local[cnt]);
+       cnt:=cnt+1;
+  end;
+  CloseFile(f_lang);
+
+  Form1.Caption       := captions_local[0];
+  Label1.Caption      := captions_local[1];
+  Label2.Caption      := captions_local[2];
+  Label3.Caption      := captions_local[3];
+  BtnUpdate.Caption   := captions_local[4];
+  BtnCheck.Caption    := captions_local[5];
+  ButtonCheck.Caption := captions_local[6];
+  ButtonHide.Caption  := captions_local[7];
+  ButtonSound.Caption := captions_local[8];
+  ButtonExit.Caption  := captions_local[9];
+
   A1  :=200;
   cnt :=0;
   BlShowMessage         := true;
   ShowMessageUserReq    := true;
-  DBConnection.HostName := HostNameDB;
+
   TrayIcon1.Icons       := TImageList.Create(Self);
   MyIconGreen           := TIcon.Create;
   MyIconGreen.LoadFromFile('traffic2-green.ico');
@@ -162,7 +203,11 @@ begin
   MyIconRed.LoadFromFile('traffic2-red.ico');
   IsClosed:=False;
   ButtonCheckClick(Self); // Hack for show icon on Windows 7. On Windows 8 and later works fine
-  If role <> 'admin' then  //If DBConnection.UserName <> 'SYSDBA' then
+  ShowMessage(role);
+  d1 := AnsiCompareText(role,'admin');
+  ShowMessage(IntToStr(d1));
+  //some magic here. UTF-8's 'admin' If role <> 'admin' then from line below...
+  If AnsiCompareText(role,'admin')=0 then  //If DBConnection.UserName <> 'SYSDBA' then
   begin
      Hide();
      WindowState := wsMinimized;
@@ -247,7 +292,7 @@ begin
   end;
   AssignFile(f,'settings.txt');//this should be universal
   //AssignFile(f,'/settings.txt');//linux //though works fine on Windows too
-  open(f);
+  rewrite(f); //Append for log file
   writeln(f,role);
   writeln(f,IntSound);
   writeln(f,lang);

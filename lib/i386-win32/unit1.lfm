@@ -61,16 +61,16 @@ object Form1: TForm1
     TabOrder = 0
   end
   object BtnCheck: TButton
-    Left = 445
+    Left = 432
     Height = 25
     Top = 223
-    Width = 75
+    Width = 88
     Caption = 'Check'
     OnClick = BtnCheckClick
     TabOrder = 1
   end
   object EditStatus: TEdit
-    Left = 88
+    Left = 96
     Height = 23
     Top = 151
     Width = 29
@@ -79,10 +79,10 @@ object Form1: TForm1
     Text = '1'
   end
   object BtnUpdate: TButton
-    Left = 88
+    Left = 96
     Height = 25
     Top = 223
-    Width = 75
+    Width = 88
     Caption = 'Update'
     OnClick = BtnUpdateClick
     TabOrder = 3
@@ -112,10 +112,10 @@ object Form1: TForm1
     ParentColor = False
   end
   object EditComment: TEdit
-    Left = 88
+    Left = 96
     Height = 23
     Top = 191
-    Width = 432
+    Width = 424
     TabOrder = 4
   end
   object DBConnection: TIBConnection
@@ -166,19 +166,19 @@ object Form1: TForm1
     left = 440
     top = 96
     object ButtonCheck: TMenuItem
-      Caption = 'Проверить'
+      Caption = 'Check'
       OnClick = ButtonCheckClick
     end
     object ButtonHide: TMenuItem
-      Caption = 'Скрыть сообщение'
+      Caption = 'Hide message'
       OnClick = ButtonHideClick
     end
     object ButtonSound: TMenuItem
-      Caption = 'Вкл./выкл. звук'
+      Caption = 'Turn on/off sound'
       OnClick = ButtonSoundClick
     end
     object ButtonExit: TMenuItem
-      Caption = 'Выход'
+      Caption = 'Exit'
       OnClick = ButtonExitClick
     end
   end
