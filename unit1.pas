@@ -111,7 +111,7 @@ begin
        msg                    := SQLQuery1.Fields[2].AsString;
        If A1_P <> A1 then
        begin
-          A1_P                :=A1;
+          A1_P                := A1;
           BlShowMessage       := true;
        end;
        TrayIcon1.BalloonHint  := msg;
@@ -203,9 +203,10 @@ begin
   MyIconRed.LoadFromFile('traffic2-red.ico');
   IsClosed:=False;
   ButtonCheckClick(Self); // Hack for show icon on Windows 7. On Windows 8 and later works fine
-  d1 := AnsiCompareText(role,'admin');
-  //some magic here. UTF-8's 'admin' If role <> 'admin' then from line below...
-  If role <> 'admin' then  //If DBConnection.UserName <> 'SYSDBA' then
+  d1 := AnsiCompareText(role,'admin-dba');
+  //ShowMessage(IntToStr(d1));     //for debug purposes
+  //some magic here. If settings.txt is UTF-8 then 'admin-dba' (from file) as variable role <> 'admin-dba' from line below...
+  If role <> 'admin-dba' then  //If DBConnection.UserName <> 'SYSDBA' then //WORKS ONLY WHEN SETTINGS.TXT IS ANSI
   begin
      Hide();
      WindowState := wsMinimized;
