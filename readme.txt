@@ -4,3 +4,5 @@ For admin role there are also ability to update this status on Firebird's databa
 Authors: Anton Gladyshev, Egor Shishkin.
 Audio source: from some localized game. You should replace them with your own, because of not clarity licensing status of audio.
 To obtain source, please visit https://github.com/Areso/lazarus-signal-light-v2/
+gds32.dll should be installed in Windows/System32
+

@@ -1,0 +1,4 @@
+Copy gds32.dll in System32
+( C:\Windows\System32\drivers\etc )
+Edit system32\drivers\etc\services with adding following line: 
+gds_db           3050/tcp
