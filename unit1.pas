@@ -9,7 +9,7 @@ interface
 
 uses
   Classes, SysUtils, IBConnection, sqldb, db, FileUtil, Forms, Controls,
-  Graphics, Dialogs, DbCtrls, DBGrids, StdCtrls, ExtCtrls, Menus, {$IFDEF WINDOWS}MMSystem;{$ELSE};{$ENDIF}
+  Graphics, Dialogs, DbCtrls, DBGrids, StdCtrls, ExtCtrls, Menus{$IFDEF WINDOWS},MMSystem;{$ELSE};{$ENDIF}
 type
 
   { TForm1 }
