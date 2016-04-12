@@ -16,9 +16,9 @@
     </i18n>
     <VersionInfo>
       <UseVersionInfo Value="True"/>
-      <AutoIncrementBuild Value="True"/>
       <MajorVersionNr Value="1"/>
-      <StringTable Comments="GPLv2" CompanyName="A.I. Gladyshev" InternalName="signal-light" LegalCopyright="A.I. Gladyshev" OriginalFilename="signal-light.exe" ProductName="signal-light"/>
+      <BuildNr Value="3"/>
+      <StringTable Comments="GPLv2" CompanyName="A.I. Gladyshev" InternalName="Signal-light" LegalCopyright="A.I. Gladyshev" OriginalFilename="signal-light.exe" ProductName="signal-light" ProductVersion=""/>
     </VersionInfo>
     <BuildModes Count="1">
       <Item1 Name="Default" Default="True"/>

@@ -2,6 +2,7 @@ unit Unit1;
 {
  This is free programm under GPLv2 (or later - as option) license.
  Authors: Anton Gladyshev, Egor Shishkin
+ version 1.0.0.2
 }
 {$mode objfpc}{$H+}
 
@@ -9,7 +10,7 @@ interface
 
 uses
   Classes, SysUtils, IBConnection, sqldb, db, FileUtil, Forms, Controls,
-  Graphics, Dialogs, DbCtrls, DBGrids, StdCtrls, ExtCtrls, Menus, {$IFDEF WINDOWS}MMSystem;{$ELSE};{$ENDIF}
+  Graphics, Dialogs, DbCtrls, DBGrids, StdCtrls, ExtCtrls, Menus{$IFDEF WINDOWS},MMSystem;{$ELSE};{$ENDIF}
 type
 
   { TForm1 }
@@ -62,9 +63,9 @@ var
   BlShowMessage:  boolean;
   ShowMessageUserReq: boolean;
   cnt:            integer;
-  MyIconGreen, MyIconRed : TIcon;
+  MyIconGreen, MyIconRed:   TIcon;
   A1:             integer;  //status
-  A1_P:           integer; //previous status
+  A1_P:           integer;  //previous status
   f:              text;     //settings
   role:           widestring;
   IntSound:       integer;
@@ -74,7 +75,7 @@ var
   DBPassword:     widestring;
   lang:           widestring;
   f_lang:         text; //localisation
-  captions_local: array[0..9] of widestring;
+  captions_local: array[0..12] of widestring; //total 13 lines
   i:              integer; //cycle counter
   d1:             integer; //debug purpose
 implementation
@@ -92,18 +93,35 @@ begin
   SQLQuery1.Close;
   SQLQuery1.SQL.Clear;
   SQLQuery1.SQL.Text       := 'SELECT * FROM MAIN';
-  DBConnection.Connected   := True;
+  Try
+    DBConnection.Connected   := True;
+  Except
+    // something went wrong, get out of here
+    ShowMessage(captions_local[10]);
+    TrayIcon1.Destroy;
+    Application.Terminate;
+  end;
+
   TrayIcon1.BalloonTimeout := 5000;
   // IF DataSet is open then transaction should be Commit and started again
-  If SQLTransaction1.Active Then SQLTransaction1.Commit;
-  SQLTransaction1.StartTransaction;
   Try
-     // try open DataSet
-     SQLQuery1.Open;
+    If SQLTransaction1.Active Then SQLTransaction1.Commit;
+    SQLTransaction1.StartTransaction;
   Except
-     // somthing goes wrong, get out of here and rollback transaction
-     SQLTransaction1.Rollback;
+    // something went wrong, get out of here
+    ShowMessage(captions_local[10]);
+    TrayIcon1.Destroy;
+    Application.Terminate;
   end;
+
+  Try
+    // try to open DataSet
+    SQLQuery1.Open;
+  Except
+    // something went wrong, get out of here and rollback transaction
+    SQLTransaction1.Rollback;
+  end;
+
   //IsClosed   := A1  <> SQLQuery1.Fields[1].AsInteger;
   //If IsClosed then
   //begin
@@ -131,7 +149,15 @@ begin
              TrayIcon1.Icon.Assign(MyIconGreen);
              {$IFDEF WINDOWS}
              if IntSound = 1 then
+             begin
+                Try
                 sndPlaySound('green.wav',SND_NODEFAULT Or SND_ASYNC);
+                Except
+                ShowMessage('green.wav '+captions_local[11]);
+                TrayIcon1.Destroy;
+                Application.Terminate;
+                end;
+             end;
              {$ELSE}
              {$ENDIF}
           end
@@ -140,7 +166,15 @@ begin
              TrayIcon1.Icon.Assign(MyIconRed);
              {$IFDEF WINDOWS}
              if IntSound = 1 then
+             begin
+                Try
                 sndPlaySound('red.wav',SND_NODEFAULT Or SND_ASYNC);
+                Except
+                ShowMessage('red.wav '+captions_local[11]);
+                TrayIcon1.Destroy;
+                Application.Terminate;
+                end;
+             end;
              {$ELSE}
              {$ENDIF}
           end;
@@ -155,15 +189,24 @@ begin
   DBConnection.DatabaseName  := 'mydb';
   AssignFile(f,'settings.txt');//this should be universal
   //AssignFile(f,'/settings.txt');//linux //though works fine on Windows too
-  reset(f);
-  readln(f, role);
-  readln(f, IntSound);
-  readln(f, lang);
-  readln(f, HostNameDB);
-  readln(f, DBName);
-  readln(f, DBUsername);
-  readln(f, DBPassword);
-  CloseFile(f);
+  Try
+    // try to open file, read variables and close file
+    reset(f);
+    readln(f, role); //suck the BOM! I vote against it!
+    readln(f, role); //now we keep calm and load our role
+    readln(f, IntSound);
+    readln(f, lang);
+    readln(f, HostNameDB);
+    readln(f, DBName);
+    readln(f, DBUsername);
+    readln(f, DBPassword);
+    CloseFile(f);
+  Except
+    // something went wrong, get out of here
+    ShowMessage('settings.txt'+' file is corrupted, please re-install app');
+    Application.Terminate();
+    ShowMessage('I still here!'); //some magic here. Why it ever happens after App have been terminated?
+  end;
 
   DBConnection.HostName       := HostNameDB;
   DBConnection.DatabaseName   := DBName;
@@ -172,13 +215,19 @@ begin
 
   cnt :=0;
   AssignFile(f_lang, lang+'.txt');
-  reset(f_lang);
-  While cnt<10 Do
-  begin
-       readln(f_lang,captions_local[cnt]);
-       cnt:=cnt+1;
+  Try
+    reset(f_lang);
+    While cnt<14 Do //total lines count(13) + 1
+    begin
+      readln(f_lang,captions_local[cnt]);
+      cnt:=cnt+1;
+    end;
+    CloseFile(f_lang);
+  Except
+    // something went wrong, get out of here
+    ShowMessage(lang+'.txt'+' file is corrupted, please re-install app');
+    Application.Terminate;
   end;
-  CloseFile(f_lang);
 
   Form1.Caption       := captions_local[0];
   Label1.Caption      := captions_local[1];
@@ -190,6 +239,9 @@ begin
   ButtonHide.Caption  := captions_local[7];
   ButtonSound.Caption := captions_local[8];
   ButtonExit.Caption  := captions_local[9];
+  //captions_local[10] is error message for DB Connection error
+  //captions_local[11] is error message for icon and audio assets loading error
+  //captions_local[12] is used to be TrayIcon1.Hint
 
   A1  :=200;
   cnt :=0;
@@ -197,16 +249,29 @@ begin
   ShowMessageUserReq    := true;
 
   TrayIcon1.Icons       := TImageList.Create(Self);
+  TrayIcon1.Hint        := captions_local[12];
   MyIconGreen           := TIcon.Create;
-  MyIconGreen.LoadFromFile('traffic2-green.ico');
+  Try
+    MyIconGreen.LoadFromFile('traffic2-green.ico');
+  Except
+    ShowMessage('traffic2-green.ico '+captions_local[11]);
+    Application.Terminate;
+  end;
+
   MyIconRed             := TIcon.Create;
-  MyIconRed.LoadFromFile('traffic2-red.ico');
+  Try
+    MyIconRed.LoadFromFile('traffic2-red.ico');
+  Except
+    ShowMessage('traffic2-red.ico '+captions_local[11]);
+    Application.Terminate;
+  end;
+
   IsClosed:=False;
   ButtonCheckClick(Self); // Hack for show icon on Windows 7. On Windows 8 and later works fine
-  d1 := AnsiCompareText(role,'admin-dba');
+  //d1 := WideCompareText(role,'admin-dba');
   //ShowMessage(IntToStr(d1));     //for debug purposes
   //some magic here. If settings.txt is UTF-8 then 'admin-dba' (from file) as variable role <> 'admin-dba' from line below...
-  If role <> 'admin-dba' then  //If DBConnection.UserName <> 'SYSDBA' then
+  If role <> 'admin-dba' then  //If DBConnection.UserName <> 'SYSDBA' then //WORKS ONLY WHEN SETTINGS.TXT IS ANSI
   begin
      Hide();
      WindowState := wsMinimized;

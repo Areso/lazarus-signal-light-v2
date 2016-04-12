@@ -1,6 +1,7 @@
+﻿BOM
 admin-dba
 1
-en
+ru
 192.168.112.8
 mydb
 SYSDBA

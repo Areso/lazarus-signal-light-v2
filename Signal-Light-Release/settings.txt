@@ -1,5 +1,6 @@
-accounter
-0
+﻿BOM
+admin-dba
+1
 ru
 192.168.112.8
 mydb

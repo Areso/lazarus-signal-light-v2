@@ -1,0 +1,10 @@
+v 1.0.0.3
++solve issue with settings file (successfully converted from ANSI to UTF-8).
+Issue was because of Notepad saves content in UTF-8 with BOM, and it's (BOM)
+read as part of first variable
+
+v 1.0.0.2
++add TrayIcon hint
+
+v 1.0.0.1
++add exceptions catcher
