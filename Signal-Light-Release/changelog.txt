@@ -1,5 +1,10 @@
+v 1.0.0.4
+=solve issue with encoding settings file (with convert strings from BOM to WithoutBOM).
+=solve issue with Terminating App->now it's Halt
+=solve issue when changing audio settings doesn't write all new settings to file.
+
 v 1.0.0.3
-+solve issue with settings file (successfully converted from ANSI to UTF-8).
+=solve issue with encoding settings file (successfully converted from ANSI to UTF-8).
 Issue was because of Notepad saves content in UTF-8 with BOM, and it's (BOM)
 read as part of first variable
 
