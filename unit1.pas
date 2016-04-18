@@ -2,7 +2,7 @@ unit Unit1;
 {
  This is free programm under GPLv2 (or later - as option) license.
  Authors: Anton Gladyshev, Egor Shishkin
- version 1.0.0.4
+ version 1.0.0.5
 }
 {$mode objfpc}{$H+}
 
@@ -11,7 +11,7 @@ interface
 uses
   Classes, SysUtils, IBConnection, sqldb, db, FileUtil, Forms, Controls,
   Graphics, Dialogs, DbCtrls, DBGrids, StdCtrls, ExtCtrls, LazUtils, LConvEncoding,
-  Menus,{$IFDEF WINDOWS}MMSystem;{$ELSE};{$ENDIF}
+  Menus{$IFDEF WINDOWS}, MMSystem;{$ELSE};{$ENDIF}
 type
 
   { TForm1 }
@@ -53,7 +53,8 @@ TForm1 = class(TForm)
     IsClosed:Boolean;
   public
     { public declarations }
-     procedure checking();
+    procedure checking();
+    procedure logging();
   end;
 
 //const
@@ -79,11 +80,30 @@ var
   captions_local: array[0..12] of widestring; //total 13 lines
   i:              integer; //cycle counter
   d1:             integer; //debug purpose
+  f_log:          text; //log file
+  EventType:      widestring;
+  LogString:      widestring;
+  ErrorMsg:       widestring;
+
 implementation
 
 {$R *.lfm}
 
 { TForm1 }
+procedure TForm1.logging();
+begin
+  AssignFile(f_log, 'log.txt');
+  Try
+    Append(f_log);
+    LogString := TimeToStr(Now())+' ,'+role+' ,'+EventType;
+    writeln(f_log, LogString);
+  Except
+    ShowMessage('log.txt '+captions_local[11]);
+    TrayIcon1.Destroy;
+    Halt;
+  end;
+end;
+
 procedure TForm1.checking();
 var
   msg:  string;
@@ -185,6 +205,10 @@ end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
+  //logging a start
+  LogEvent:='start';
+  logging();
+
   // Initialize parameters such as show message user, counters, icons,
   DBConnection.HostName      := 'localhost';
   DBConnection.DatabaseName  := 'mydb';
@@ -204,6 +228,7 @@ begin
   Except
     // something went wrong, get out of here
     ShowMessage('settings.txt'+' file is corrupted, please re-install app');
+    LogEvent:
     Halt;
   end;
 

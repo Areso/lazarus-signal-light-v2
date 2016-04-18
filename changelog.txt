@@ -1,3 +1,6 @@
+v 1.0.0.5
++adding logging information.
+
 v 1.0.0.4
 =solve issue with encoding settings file (with convert strings from BOM to WithoutBOM).
 =solve issue with Terminating App->now it's Halt
