@@ -81,8 +81,11 @@ var
   i:              integer; //cycle counter
   d1:             integer; //debug purpose
   f_log:          text; //log file
-  EventType:      widestring;
-  LogString:      widestring;
+  LogEvent:       widestring;
+  ErrorMsg:       widestring;
+  LogString:      widestring; //result string to write to file
+  DT:             TDateTime;
+
 
 implementation
 
@@ -94,8 +97,10 @@ begin
   AssignFile(f_log, 'log.txt');
   Try
     Append(f_log);
-    LogString := TimeToStr(Now())+' ,'+role+' ,'+EventType;
+    LogString := FormatDateTime('dd-mm-yyyy hh:nn', Now)+' , '+role+' , '+LogEvent+' , '+ErrorMsg;
     writeln(f_log, LogString);
+    //ShowMessage('should be written '+LogString);
+    CloseFile(f_log);
   Except
     ShowMessage('log.txt '+captions_local[11]);
     TrayIcon1.Destroy;
@@ -206,6 +211,7 @@ procedure TForm1.FormCreate(Sender: TObject);
 begin
   //logging a start
   LogEvent:='start';
+  ErrorMsg:='';
   logging();
 
   // Initialize parameters such as show message user, counters, icons,
@@ -226,8 +232,10 @@ begin
     CloseFile(f);
   Except
     // something went wrong, get out of here
-    ShowMessage('settings.txt'+' file is corrupted, please re-install app');
-    L
+    ErrorMsg := 'settings.txt'+' file is corrupted, please re-install app';
+    LogEvent:='stop';
+    ShowMessage(ErrorMsg);
+    logging();
     Halt;
   end;
 
