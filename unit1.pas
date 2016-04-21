@@ -2,7 +2,8 @@ unit Unit1;
 {
  This is free programm under GPLv2 (or later - as option) license.
  Authors: Anton Gladyshev, Egor Shishkin
- version 1.0.0.5
+ version 1.0.0.7 date 2016-04-21
+                     (YYYY-MM-DD)
 }
 {$mode objfpc}{$H+}
 
@@ -77,7 +78,7 @@ var
   DBPassword:     widestring;
   lang:           widestring;
   f_lang:         text; //localisation
-  captions_local: array[0..12] of widestring; //total 13 lines
+  captions_local: array[0..14] of widestring; //total 15 lines
   i:              integer; //cycle counter
   d1:             integer; //debug purpose
   f_log:          text; //log file
@@ -85,6 +86,8 @@ var
   ErrorMsg:       widestring;
   LogString:      widestring; //result string to write to file
   DT:             TDateTime;
+  pwd_ansi:       ansistring;
+  pwd:            boolean;
 
 
 implementation
@@ -117,13 +120,16 @@ begin
   //checking
   SQLQuery1.Close;
   SQLQuery1.SQL.Clear;
-  SQLQuery1.SQL.Text       := 'SELECT * FROM MAIN';
+  SQLQuery1.SQL.Text         := 'SELECT * FROM MAIN';
   Try
     DBConnection.Connected   := True;
   Except
     // something went wrong, get out of here
     ShowMessage(captions_local[10]);
     TrayIcon1.Destroy;
+    ErrorMsg := captions_local[10];
+    LogEvent := 'stop';
+    logging();
     Halt;
   end;
 
@@ -136,6 +142,9 @@ begin
     // something went wrong, get out of here
     ShowMessage(captions_local[10]);
     TrayIcon1.Destroy;
+    ErrorMsg := captions_local[10];
+    LogEvent := 'stop';
+    logging();
     Halt;
   end;
 
@@ -180,6 +189,9 @@ begin
                 Except
                 ShowMessage('green.wav '+captions_local[11]);
                 TrayIcon1.Destroy;
+                ErrorMsg := 'green.wav '+captions_local[11];
+                LogEvent := 'stop';
+                logging();
                 Halt;
                 end;
              end;
@@ -197,6 +209,9 @@ begin
                 Except
                 ShowMessage('red.wav '+captions_local[11]);
                 TrayIcon1.Destroy;
+                ErrorMsg := 'red.wav '+captions_local[11];
+                LogEvent := 'stop';
+                logging();
                 Halt;
                 end;
              end;
@@ -233,7 +248,7 @@ begin
   Except
     // something went wrong, get out of here
     ErrorMsg := 'settings.txt'+' file is corrupted, please re-install app';
-    LogEvent:='stop';
+    LogEvent := 'stop';
     ShowMessage(ErrorMsg);
     logging();
     Halt;
@@ -248,7 +263,7 @@ begin
   AssignFile(f_lang, lang+'.txt');
   Try
     reset(f_lang);
-    While cnt<14 Do //total lines count(13) + 1
+    While cnt<16 Do //total lines count(15) + 1
     begin
       readln(f_lang,captions_local[cnt]);
       cnt:=cnt+1;
@@ -257,7 +272,7 @@ begin
   Except
     // something went wrong, get out of here
     ErrorMsg := lang+'.txt'+' file is corrupted, please re-install app';
-    LogEvent:='stop';
+    LogEvent := 'stop';
     ShowMessage(ErrorMsg);
     logging();
     Halt;
@@ -288,7 +303,10 @@ begin
   Try
     MyIconGreen.LoadFromFile('traffic2-green.ico');
   Except
-    ShowMessage('traffic2-green.ico '+captions_local[11]);
+    ErrorMsg := 'traffic2-green.ico '+captions_local[11];
+    LogEvent := 'stop';
+    ShowMessage(ErrorMsg);
+    logging();
     Halt;
   end;
 
@@ -296,7 +314,10 @@ begin
   Try
     MyIconRed.LoadFromFile('traffic2-red.ico');
   Except
-    ShowMessage('traffic2-red.ico '+captions_local[11]);
+    ErrorMsg := 'traffic2-red.ico '+captions_local[11];
+    LogEvent := 'stop';
+    ShowMessage(ErrorMsg);
+    logging();
     Halt;
   end;
 
@@ -344,9 +365,21 @@ end;
 
 procedure TForm1.ButtonExitClick(Sender: TObject);
 begin
-   TrayIcon1.Destroy;
-   Halt;
-end;
+  pwd := InputQuery(captions_local[0], captions_local[13], pwd_ansi);
+
+  If pwd_ansi = 'GhjuhfvvbcnsHerbRh.rb' Then
+  begin
+    TrayIcon1.Destroy;
+    ErrorMsg := '';
+    LogEvent :='stop';
+    logging();
+    Halt;
+  end
+  else
+  begin
+    ShowMessage(captions_local[14]);
+  end;
+End;
 
 procedure TForm1.ButtonCheckClick(Sender: TObject);
 begin
@@ -370,6 +403,10 @@ begin
   DBConnection.CloseTransactions;
   DBConnection.Close;
   TrayIcon1.Destroy;
+  ErrorMsg := '';
+  LogEvent:='stop';
+  logging();
+  Halt;
 end;
 
 procedure TForm1.DBConnectionAfterConnect(Sender: TObject);
@@ -400,9 +437,12 @@ begin
     writeln(f, DBPassword);
     CloseFile(f);
   Except
-    ShowMessage(captions_local[10]);
-    TrayIcon1.Destroy;
-    Halt;
+   ShowMessage(captions_local[10]);
+   TrayIcon1.Destroy;
+   ErrorMsg := 'captions_local[10]';
+   LogEvent:='stop';
+   logging();
+   Halt;
   end;
 end;
 

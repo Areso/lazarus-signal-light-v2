@@ -1,3 +1,9 @@
+v 1.0.0.7
++adding password protection to exit
+
+v 1.0.0.6
++adding logging for statistics purposes
+
 v 1.0.0.5
 +adding logging information.
 
