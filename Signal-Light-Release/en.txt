@@ -11,3 +11,5 @@ Exit
 DB Connection error; please, check server and settings.txt
 file is corrupted, please re-install app
 DB Status
+Enter password to exit
+Passowrd incorrect!

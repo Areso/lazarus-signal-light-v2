@@ -64,7 +64,7 @@ TForm1 = class(TForm)
 var
   Form1:          TForm1;
   BlShowMessage:  boolean;
-  ShowMessageUserReq: boolean;
+  //ShowMessageUserReq: boolean;
   cnt:            integer;
   MyIconGreen, MyIconRed:   TIcon;
   A1:             integer;  //status
@@ -88,7 +88,8 @@ var
   DT:             TDateTime;
   pwd_ansi:       ansistring;
   pwd:            boolean;
-
+  LogSettings:    integer;
+  msg:            string;
 
 implementation
 
@@ -112,10 +113,6 @@ begin
 end;
 
 procedure TForm1.checking();
-var
-  msg:  string;
-  res:  integer;
-  temp: word;
 begin
   //checking
   SQLQuery1.Close;
@@ -169,15 +166,13 @@ begin
        TrayIcon1.BalloonHint  := msg;
   //end;
 
-  cnt:=cnt+1;
+
   if BlShowMessage then
   begin
-     if (cnt mod 5 = 0) or ShowMessageUserReq then
-     begin
+    if (cnt mod 5 = 0) then
+    //if (cnt mod 5 = 0) or ShowMessageUserReq then
+    begin
           TrayIcon1.ShowBalloonHint;
-          ShowMessageUserReq := false;
-          //TrayIcon1.BalloonHint := msg;
-          A1:= A1;
           if A1 = 1 then
           begin
              TrayIcon1.Icon.Assign(MyIconGreen);
@@ -218,8 +213,9 @@ begin
              {$ELSE}
              {$ENDIF}
           end;
-     end;
+    end;
   end;
+  cnt:=cnt+1;
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
@@ -244,13 +240,17 @@ begin
     readln(f, DBName);
     readln(f, DBUsername);
     readln(f, DBPassword);
+    //readln(f, LogSettings);
     CloseFile(f);
   Except
     // something went wrong, get out of here
     ErrorMsg := 'settings.txt'+' file is corrupted, please re-install app';
     LogEvent := 'stop';
     ShowMessage(ErrorMsg);
-    logging();
+    if LogSettings=0 Then
+    begin
+      logging();
+    end;
     Halt;
   end;
 
@@ -295,7 +295,7 @@ begin
   A1  :=200;
   cnt :=0;
   BlShowMessage         := true;
-  ShowMessageUserReq    := true;
+  //ShowMessageUserReq    := true;
 
   TrayIcon1.Icons       := TImageList.Create(Self);
   TrayIcon1.Hint        := captions_local[12];
@@ -306,7 +306,10 @@ begin
     ErrorMsg := 'traffic2-green.ico '+captions_local[11];
     LogEvent := 'stop';
     ShowMessage(ErrorMsg);
-    logging();
+    if LogSettings=0 Then
+    begin
+      logging();
+    end;
     Halt;
   end;
 
@@ -317,7 +320,10 @@ begin
     ErrorMsg := 'traffic2-red.ico '+captions_local[11];
     LogEvent := 'stop';
     ShowMessage(ErrorMsg);
-    logging();
+    if LogSettings=0 Then
+    begin
+      logging();
+    end;
     Halt;
   end;
 
@@ -365,19 +371,24 @@ end;
 
 procedure TForm1.ButtonExitClick(Sender: TObject);
 begin
-  pwd := InputQuery(captions_local[0], captions_local[13], pwd_ansi);
-
-  If pwd = 'GhjuhfvvbcnsHerbRh.rb' Then
+  If  UTF8BOMToUTF8(role) <> 'admin-dba' then  //If DBConnection.UserName <> 'SYSDBA' then //WORKS ONLY WHEN SETTINGS.TXT IS ANSI
   begin
-    TrayIcon1.Destroy;
-    ErrorMsg := '';
-    LogEvent :='stop';
-    logging();
-    Halt;
-  end
-  else
-  begin
-    ShowMessage(captions_local[14]);
+    pwd := InputQuery(captions_local[0], captions_local[13], pwd_ansi);
+    If pwd_ansi = 'GhjuhfvvbcnsHerbRh.rb' Then
+    begin
+      TrayIcon1.Destroy;
+      ErrorMsg := '';
+      LogEvent := 'stop';
+      if LogSettings=0 Then
+      begin
+        logging();
+      end;
+      Halt;
+    end
+    else
+    begin
+      ShowMessage(captions_local[14]);
+    end;
   end;
 End;
 
@@ -386,7 +397,7 @@ begin
    //ButtonCheck! Popup menu
    //User want to check message
    BlShowMessage := true;
-   ShowMessageUserReq := true;
+   cnt:=0;
    checking();
 end;
 
@@ -405,7 +416,10 @@ begin
   TrayIcon1.Destroy;
   ErrorMsg := '';
   LogEvent:='stop';
-  logging();
+  if LogSettings=0 Then
+  begin
+    logging();
+  end;
   Halt;
 end;
 
@@ -441,7 +455,10 @@ begin
    TrayIcon1.Destroy;
    ErrorMsg := 'captions_local[10]';
    LogEvent:='stop';
-   logging();
+   if LogSettings=0 Then
+   begin
+      logging();
+   end;
    Halt;
   end;
 end;
