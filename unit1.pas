@@ -2,7 +2,7 @@ unit Unit1;
 {
  This is free programm under GPLv2 (or later - as option) license.
  Authors: Anton Gladyshev, Egor Shishkin
- version 1.0.0.7 date 2016-04-21
+ version 1.0.0.8 date 2016-04-25
                      (YYYY-MM-DD)
 }
 {$mode objfpc}{$H+}
@@ -64,7 +64,6 @@ TForm1 = class(TForm)
 var
   Form1:          TForm1;
   BlShowMessage:  boolean;
-  //ShowMessageUserReq: boolean;
   cnt:            integer;
   MyIconGreen, MyIconRed:   TIcon;
   A1:             integer;  //status
@@ -166,7 +165,6 @@ begin
        TrayIcon1.BalloonHint  := msg;
   //end;
 
-
   if BlShowMessage then
   begin
     if (cnt mod 5 = 0) then
@@ -186,7 +184,10 @@ begin
                 TrayIcon1.Destroy;
                 ErrorMsg := 'green.wav '+captions_local[11];
                 LogEvent := 'stop';
-                logging();
+                if LogSettings=0 Then
+                begin
+                  logging();
+                end;
                 Halt;
                 end;
              end;
@@ -206,8 +207,10 @@ begin
                 TrayIcon1.Destroy;
                 ErrorMsg := 'red.wav '+captions_local[11];
                 LogEvent := 'stop';
-                logging();
-                Halt;
+                if LogSettings=0 Then
+                begin
+                  logging();
+                end;
                 end;
              end;
              {$ELSE}
@@ -234,6 +237,7 @@ begin
     // try to open file, read variables and close file
     reset(f);
     readln(f, role); //now we keep calm and load our role
+    role := UTF8BOMToUTF8(role);
     readln(f, IntSound);
     readln(f, lang);
     readln(f, HostNameDB);
@@ -295,7 +299,6 @@ begin
   A1  :=200;
   cnt :=0;
   BlShowMessage         := true;
-  //ShowMessageUserReq    := true;
 
   TrayIcon1.Icons       := TImageList.Create(Self);
   TrayIcon1.Hint        := captions_local[12];
@@ -331,7 +334,7 @@ begin
   ButtonCheckClick(Self); // Hack for show icon on Windows 7. On Windows 8 and later works fine
   //d1 := WideCompareText(role,'admin-dba');
   //!!! req uses LazUtils, LConvEncoding !!!
-  If  UTF8BOMToUTF8(role) <> 'admin-dba' then  //If DBConnection.UserName <> 'SYSDBA' then //WORKS ONLY WHEN SETTINGS.TXT IS ANSI
+  If  role <> 'admin-dba' then  //If DBConnection.UserName <> 'SYSDBA' then //WORKS ONLY WHEN SETTINGS.TXT IS ANSI
   begin
      Hide();
      WindowState := wsMinimized;
@@ -371,7 +374,7 @@ end;
 
 procedure TForm1.ButtonExitClick(Sender: TObject);
 begin
-  If  UTF8BOMToUTF8(role) <> 'admin-dba' then  //If DBConnection.UserName <> 'SYSDBA' then //WORKS ONLY WHEN SETTINGS.TXT IS ANSI
+  If  role <> 'admin-dba' then  //If DBConnection.UserName <> 'SYSDBA' then //WORKS ONLY WHEN SETTINGS.TXT IS ANSI
   begin
     pwd := InputQuery(captions_local[0], captions_local[13], pwd_ansi);
     If pwd_ansi = 'GhjuhfvvbcnsHerbRh.rb' Then
@@ -389,6 +392,17 @@ begin
     begin
       ShowMessage(captions_local[14]);
     end;
+  end
+  else
+  begin
+    TrayIcon1.Destroy;
+    ErrorMsg := '';
+    LogEvent := 'stop';
+    if LogSettings=0 Then
+    begin
+      logging();
+    end;
+    Halt;
   end;
 End;
 
@@ -415,7 +429,7 @@ begin
   DBConnection.Close;
   TrayIcon1.Destroy;
   ErrorMsg := '';
-  LogEvent:='stop';
+  LogEvent := 'stop';
   if LogSettings=0 Then
   begin
     logging();
@@ -441,7 +455,8 @@ begin
 
   Try
     AssignFile(f,'settings.txt');//this should be universal
-    rewrite(f); //Append for log file
+    rewrite(f);
+    role := UTF8ToUTF8BOM(role);
     writeln(f, role);
     writeln(f, IntSound);
     writeln(f, lang);
@@ -455,7 +470,7 @@ begin
    ShowMessage(captions_local[10]);
    TrayIcon1.Destroy;
    ErrorMsg := 'captions_local[10]';
-   LogEvent:='stop';
+   LogEvent := 'stop';
    if LogSettings=0 Then
    begin
       logging();
