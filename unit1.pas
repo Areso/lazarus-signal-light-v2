@@ -2,7 +2,7 @@ unit Unit1;
 {
  This is free programm under GPLv2 (or later - as option) license.
  Authors: Anton Gladyshev, Egor Shishkin
- version 1.0.0.8 date 2016-04-25
+ version 1.0.0.8 date 2016-04-26
                      (YYYY-MM-DD)
 }
 {$mode objfpc}{$H+}
@@ -125,7 +125,10 @@ begin
     TrayIcon1.Destroy;
     ErrorMsg := captions_local[10];
     LogEvent := 'stop';
-    logging();
+    if LogSettings=0 Then
+    begin
+     logging();
+    end;
     Halt;
   end;
 
@@ -140,7 +143,10 @@ begin
     TrayIcon1.Destroy;
     ErrorMsg := captions_local[10];
     LogEvent := 'stop';
-    logging();
+    if LogSettings=0 Then
+    begin
+     logging();
+    end;
     Halt;
   end;
 
@@ -224,6 +230,7 @@ end;
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   //logging a start
+  LogSettings:=0;
   LogEvent:='start';
   ErrorMsg:='';
   logging();
@@ -244,7 +251,7 @@ begin
     readln(f, DBName);
     readln(f, DBUsername);
     readln(f, DBPassword);
-    //readln(f, LogSettings);
+    readln(f, LogSettings);
     CloseFile(f);
   Except
     // something went wrong, get out of here
@@ -458,6 +465,7 @@ begin
     rewrite(f);
     role := UTF8ToUTF8BOM(role);
     writeln(f, role);
+    role := UTF8BOMToUTF8(role);
     writeln(f, IntSound);
     writeln(f, lang);
     writeln(f, HostNameDB);

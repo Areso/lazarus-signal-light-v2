@@ -125,7 +125,10 @@ begin
     TrayIcon1.Destroy;
     ErrorMsg := captions_local[10];
     LogEvent := 'stop';
-    logging();
+    if LogSettings=0 Then
+    begin
+     logging();
+    end;
     Halt;
   end;
 
@@ -140,7 +143,10 @@ begin
     TrayIcon1.Destroy;
     ErrorMsg := captions_local[10];
     LogEvent := 'stop';
-    logging();
+    if LogSettings=0 Then
+    begin
+     logging();
+    end;
     Halt;
   end;
 
@@ -164,10 +170,6 @@ begin
        end;
        TrayIcon1.BalloonHint  := msg;
   //end;
-
-  //debug
-  sndPlaySound('green.wav',SND_NODEFAULT Or SND_ASYNC);
-  //end of debug
 
   if BlShowMessage then
   begin
@@ -228,6 +230,7 @@ end;
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   //logging a start
+  LogSettings:=0;
   LogEvent:='start';
   ErrorMsg:='';
   logging();
@@ -248,7 +251,7 @@ begin
     readln(f, DBName);
     readln(f, DBUsername);
     readln(f, DBPassword);
-    //readln(f, LogSettings);
+    readln(f, LogSettings);
     CloseFile(f);
   Except
     // something went wrong, get out of here
@@ -462,6 +465,7 @@ begin
     rewrite(f);
     role := UTF8ToUTF8BOM(role);
     writeln(f, role);
+    role := UTF8BOMToUTF8(role);
     writeln(f, IntSound);
     writeln(f, lang);
     writeln(f, HostNameDB);

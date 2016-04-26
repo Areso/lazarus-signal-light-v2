@@ -1,3 +1,17 @@
+v 1.0.0.8
++after changing sound settings, reload the settings
++closefile for log/settings file - checked.
+=changed icon for the program
+
+v 1.0.0.7
++adding password protection to exit
+
+v 1.0.0.6
++adding logging for statistics purposes
+
+v 1.0.0.5
++adding logging information.
+
 v 1.0.0.4
 =solve issue with encoding settings file (with convert strings from BOM to WithoutBOM).
 =solve issue with Terminating App->now it's Halt

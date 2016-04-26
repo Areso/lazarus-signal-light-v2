@@ -49,6 +49,7 @@ object Form1: TForm1
   }
   OnClose = FormClose
   OnCreate = FormCreate
+  Position = poScreenCenter
   LCLVersion = '1.4.4.0'
   object DBGrid1: TDBGrid
     Left = 24

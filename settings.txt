@@ -1,8 +1,8 @@
 ﻿admin-dba
-1
+0
 en
 192.168.112.8
 mydb
 SYSDBA
 masterkey
-0
+1
