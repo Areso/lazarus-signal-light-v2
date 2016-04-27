@@ -2,7 +2,7 @@ unit Unit1;
 {
  This is free programm under GPLv2 (or later - as option) license.
  Authors: Anton Gladyshev, Egor Shishkin
- version 1.0.0.8 date 2016-04-25
+ version 1.0.0.8 date 2016-04-26
                      (YYYY-MM-DD)
 }
 {$mode objfpc}{$H+}

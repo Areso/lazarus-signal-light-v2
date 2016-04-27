@@ -23,8 +23,7 @@
         <UnitName Value="Unit1"/>
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="2"/>
-        <TopLine Value="455"/>
-        <CursorPos X="26" Y="468"/>
+        <CursorPos X="33" Y="5"/>
         <FoldState Value=" T4B03 T7J9d T3jB0E1 pjSk30{c31111_"/>
         <ExtraEditorCount Value="1"/>
         <ExtraEditor1>
@@ -251,7 +250,6 @@
       </Unit33>
       <Unit34>
         <Filename Value="unit1.lfm"/>
-        <TopLine Value="31"/>
         <UsageCount Value="11"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="LFM"/>
