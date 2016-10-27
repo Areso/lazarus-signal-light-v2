@@ -13,3 +13,5 @@ file is corrupted, please re-install app
 DB Status
 Enter password to exit
 Password incorrect!
+Delayed update, min
+Apply

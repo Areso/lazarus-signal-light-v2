@@ -1,12 +1,12 @@
 object Form1: TForm1
   Left = 372
-  Height = 255
+  Height = 318
   Top = 212
   Width = 528
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'Information'
-  ClientHeight = 255
+  ClientHeight = 318
   ClientWidth = 528
   Icon.Data = {
     7E04000000000100010010100000010020006804000016000000280000001000
@@ -120,6 +120,33 @@ object Form1: TForm1
     Width = 424
     TabOrder = 2
   end
+  object Label4: TLabel
+    Left = 24
+    Height = 15
+    Top = 272
+    Width = 109
+    Caption = 'Delayed update, min'
+    ParentColor = False
+  end
+  object EditInterval: TEdit
+    Left = 224
+    Height = 23
+    Top = 272
+    Width = 80
+    Alignment = taRightJustify
+    TabOrder = 5
+    Text = '0'
+  end
+  object ToggleBox1: TToggleBox
+    Left = 304
+    Height = 25
+    Top = 272
+    Width = 96
+    Caption = 'ToggleBox1'
+    OnChange = ToggleBox1Change
+    OnClick = ToggleBox1Click
+    TabOrder = 6
+  end
   object DBConnection: TIBConnection
     Connected = False
     LoginPrompt = False
@@ -189,5 +216,11 @@ object Form1: TForm1
     OnTimer = Timer1Timer
     left = 496
     top = 96
+  end
+  object timerDelayed: TTimer
+    Enabled = False
+    OnTimer = timerDelayedTimer
+    left = 480
+    top = 264
   end
 end

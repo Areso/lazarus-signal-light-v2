@@ -1,8 +1,8 @@
 unit Unit1;
 {
- This is free programm under GPLv2 (or later - as option) license.
+ This is free programm under GPLv2 and GPLv3 licenses.
  Authors: Anton Gladyshev, Egor Shishkin
- version 1.0.0.8 date 2016-04-26
+ version 1.0.0.9 date 2016-10-27
                      (YYYY-MM-DD)
 }
 {$mode objfpc}{$H+}
@@ -26,17 +26,22 @@ TForm1 = class(TForm)
     ButtonCheck: TMenuItem;
     ButtonExit: TMenuItem;
     ButtonHide: TMenuItem;
+    EditInterval: TEdit;
     EditStatus: TEdit;
     EditComment: TEdit;
     Label1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
     ButtonSound: TMenuItem;
+    Label4: TLabel;
     PopupMenu1: TPopupMenu;
     SQLQuery1: TSQLQuery;
     SQLTransaction1: TSQLTransaction;
     Timer1: TTimer;
+    timerDelayed: TTimer;
+    ToggleBox1: TToggleBox;
     TrayIcon1: TTrayIcon;
+    procedure btnApplyDelayedClick(Sender: TObject);
     procedure BtnCheckClick(Sender: TObject);
     procedure BtnUpdateClick(Sender: TObject);
     procedure ButtonHideClick(Sender: TObject);
@@ -48,6 +53,9 @@ TForm1 = class(TForm)
     procedure DBConnectionAfterConnect(Sender: TObject);
     procedure ButtonSoundClick(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
+    procedure timerDelayedTimer(Sender: TObject);
+    procedure ToggleBox1Change(Sender: TObject);
+    procedure ToggleBox1Click(Sender: TObject);
     procedure TrayIcon1Click(Sender: TObject);
   private
     { private declarations }
@@ -56,6 +64,7 @@ TForm1 = class(TForm)
     { public declarations }
     procedure checking();
     procedure logging();
+    procedure updatedb();
   end;
 
 //const
@@ -77,7 +86,7 @@ var
   DBPassword:     widestring;
   lang:           widestring;
   f_lang:         text; //localisation
-  captions_local: array[0..14] of widestring; //total 15 lines
+  captions_local: array[0..16] of widestring; //total 17 lines
   i:              integer; //cycle counter
   d1:             integer; //debug purpose
   f_log:          text; //log file
@@ -226,6 +235,24 @@ begin
   end;
   cnt:=cnt+1;
 end;
+procedure TForm1.updatedb();
+begin
+  SQLQuery1.Close;
+  SQLQuery1.SQL.Clear;
+  SQLQuery1.SQL.Text      := 'update main a set status = '+EditStatus.Text+' , comment = '+ QuotedStr(EditComment.Text)+' where id = 1';
+  //ShowMessage(SQLQuery1.SQL.Text); for debug purpose
+  DBConnection.Connected  := True;
+  // IF DataSet is open then transaction should be Commit and started again
+  If SQLTransaction1.Active Then SQLTransaction1.Commit;
+  SQLTransaction1.StartTransaction;
+  Try
+     //// try open DataSet
+     SQLQuery1.ExecSQL;
+  Except
+     // somthing goes wrong, get out of here and rollback transaction
+     SQLTransaction1.Rollback;
+  end;
+end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
@@ -274,7 +301,7 @@ begin
   AssignFile(f_lang, lang+'.txt');
   Try
     reset(f_lang);
-    While cnt<16 Do //total lines count(15) + 1
+    While cnt<18 Do //total lines count(17) + 1
     begin
       readln(f_lang,captions_local[cnt]);
       cnt:=cnt+1;
@@ -289,16 +316,18 @@ begin
     Halt;
   end;
 
-  Form1.Caption       := captions_local[0];
-  Label1.Caption      := captions_local[1];
-  Label2.Caption      := captions_local[2];
-  Label3.Caption      := captions_local[3];
-  BtnUpdate.Caption   := captions_local[4];
-  BtnCheck.Caption    := captions_local[5];
-  ButtonCheck.Caption := captions_local[6];
-  ButtonHide.Caption  := captions_local[7];
-  ButtonSound.Caption := captions_local[8];
-  ButtonExit.Caption  := captions_local[9];
+  Form1.Caption            := captions_local[0];
+  Label1.Caption           := captions_local[1];
+  Label2.Caption           := captions_local[2];
+  Label3.Caption           := captions_local[3];
+  BtnUpdate.Caption        := captions_local[4];
+  BtnCheck.Caption         := captions_local[5];
+  ButtonCheck.Caption      := captions_local[6];
+  ButtonHide.Caption       := captions_local[7];
+  ButtonSound.Caption      := captions_local[8];
+  ButtonExit.Caption       := captions_local[9];
+  label4.Caption           := captions_local[15];
+  ToggleBox1.Caption       := captions_local[16];
   //captions_local[10] is error message for DB Connection error
   //captions_local[11] is error message for icon and audio assets loading error
   //captions_local[12] is used to be TrayIcon1.Hint
@@ -354,23 +383,15 @@ begin
     checking();
 end;
 
+procedure TForm1.btnApplyDelayedClick(Sender: TObject);
+begin
+  timerDelayed.Interval := StrToInt(EditInterval.Text)*1000*60;
+  timerDelayed.Enabled  := True;
+end;
+
 procedure TForm1.BtnUpdateClick(Sender: TObject);
 begin
-  SQLQuery1.Close;
-  SQLQuery1.SQL.Clear;
-  SQLQuery1.SQL.Text      := 'update main a set status = '+EditStatus.Text+' , comment = '+ QuotedStr(EditComment.Text)+' where id = 1';
-  //ShowMessage(SQLQuery1.SQL.Text); for debug purpose
-  DBConnection.Connected  := True;
-  // IF DataSet is open then transaction should be Commit and started again
-  If SQLTransaction1.Active Then SQLTransaction1.Commit;
-  SQLTransaction1.StartTransaction;
-  Try
-     //// try open DataSet
-     SQLQuery1.ExecSQL;
-  Except
-     // somthing goes wrong, get out of here and rollback transaction
-     SQLTransaction1.Rollback;
-  end;
+  update();
 end;
 
 procedure TForm1.ButtonHideClick(Sender: TObject);
@@ -487,9 +508,40 @@ begin
   end;
 end;
 
+
+
 procedure TForm1.Timer1Timer(Sender: TObject);
 begin
   checking();
+end;
+
+procedure TForm1.timerDelayedTimer(Sender: TObject);
+begin
+  updatedb();
+  timerDelayed.Enabled := False;
+end;
+
+procedure TForm1.ToggleBox1Change(Sender: TObject);
+begin
+  if ToggleBox1.Checked = True then
+  begin
+    timerDelayed.Interval := StrToInt(EditInterval.Text)*1000*60;
+    timerDelayed.Enabled  := True;
+  end;
+  if ToggleBox1.Checked = False then
+  begin
+    timerDelayed.Interval := StrToInt(EditInterval.Text)*1000*60;
+    timerDelayed.Enabled  := False;
+  end;
+
+end;
+
+procedure TForm1.ToggleBox1Click(Sender: TObject);
+begin
+ // if ToggleBox1.Checked = True then
+ //   ShowMessage('do it!');
+ // if ToggleBox1.Checked = False then
+ //   ShowMessage('don''t do it');
 end;
 
 procedure TForm1.TrayIcon1Click(Sender: TObject);
