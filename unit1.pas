@@ -2,8 +2,8 @@ unit Unit1;
 {
  This is free programm under GPLv2 and GPLv3 licenses.
  Authors: Anton Gladyshev, Egor Shishkin
- version 1.0.0.9 date 2016-10-27
-                     (YYYY-MM-DD)
+ version 1.0.0.10 date 2016-11-11
+                      (YYYY-MM-DD)
 }
 {$mode objfpc}{$H+}
 
@@ -391,7 +391,7 @@ end;
 
 procedure TForm1.BtnUpdateClick(Sender: TObject);
 begin
-  update();
+  updatedb();
 end;
 
 procedure TForm1.ButtonHideClick(Sender: TObject);

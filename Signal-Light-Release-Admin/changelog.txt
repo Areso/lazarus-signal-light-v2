@@ -1,3 +1,9 @@
+v 1.0.0.10
+=fixed bug with old Update button
+
+v 1.0.0.9
++added delayed update
+
 v 1.0.0.8
 +after changing sound settings, reload the settings
 +closefile for log/settings file - checked.

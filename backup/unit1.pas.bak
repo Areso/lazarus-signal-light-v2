@@ -327,7 +327,7 @@ begin
   ButtonSound.Caption      := captions_local[8];
   ButtonExit.Caption       := captions_local[9];
   label4.Caption           := captions_local[15];
-  ToggleBox1.Caption  := captions_local[16];
+  ToggleBox1.Caption       := captions_local[16];
   //captions_local[10] is error message for DB Connection error
   //captions_local[11] is error message for icon and audio assets loading error
   //captions_local[12] is used to be TrayIcon1.Hint
@@ -391,7 +391,7 @@ end;
 
 procedure TForm1.BtnUpdateClick(Sender: TObject);
 begin
-  update();
+  updatedb();
 end;
 
 procedure TForm1.ButtonHideClick(Sender: TObject);
