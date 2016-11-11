@@ -1,1 +1,2 @@
---empty
+1.0.0.11
+add try-catch in cycle to avoid crash program when it tried to obtain status from Firebird and Server/Network doesn't respond
