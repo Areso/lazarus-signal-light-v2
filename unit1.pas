@@ -37,8 +37,9 @@ TForm1 = class(TForm)
     PopupMenu1: TPopupMenu;
     SQLQuery1: TSQLQuery;
     SQLTransaction1: TSQLTransaction;
-    Timer1: TTimer;
+    timerDBcheck: TTimer;
     timerDelayed: TTimer;
+    timerInit: TTimer;
     ToggleBox1: TToggleBox;
     TrayIcon1: TTrayIcon;
     procedure btnApplyDelayedClick(Sender: TObject);
@@ -52,7 +53,7 @@ TForm1 = class(TForm)
     procedure FormCreate(Sender: TObject);
     procedure DBConnectionAfterConnect(Sender: TObject);
     procedure ButtonSoundClick(Sender: TObject);
-    procedure Timer1Timer(Sender: TObject);
+    procedure timerDBcheckTimer(Sender: TObject);
     procedure timerDelayedTimer(Sender: TObject);
     procedure ToggleBox1Change(Sender: TObject);
     procedure ToggleBox1Click(Sender: TObject);
@@ -121,17 +122,23 @@ begin
 end;
 
 procedure TForm1.checking();
+var
+  success: boolean;
 begin
+  //init
+  success: false;
   //checking
   SQLQuery1.Close;
   SQLQuery1.SQL.Clear;
   SQLQuery1.SQL.Text         := 'SELECT * FROM MAIN';
   Try
     DBConnection.Connected   := True;
+    success                  := True;
   Except
     // something went wrong, get out of here
-    ShowMessage(captions_local[10]);
+    success                  := False;
     TrayIcon1.Destroy;
+    ShowMessage(captions_local[10]);
     ErrorMsg := captions_local[10];
     LogEvent := 'stop';
     if LogSettings=0 Then
@@ -142,34 +149,49 @@ begin
   end;
 
   TrayIcon1.BalloonTimeout := 5000;
-  // IF DataSet is open then transaction should be Commit and started again
-  Try
-    If SQLTransaction1.Active Then SQLTransaction1.Commit;
-    SQLTransaction1.StartTransaction;
-  Except
-    // something went wrong, get out of here
-    ShowMessage(captions_local[10]);
-    TrayIcon1.Destroy;
-    ErrorMsg := captions_local[10];
-    LogEvent := 'stop';
-    if LogSettings=0 Then
-    begin
-     logging();
+  if (success = true) Then
+  begin
+    // IF DataSet is open then transaction should be Commit and started again
+    Try
+      If SQLTransaction1.Active Then SQLTransaction1.Commit;
+      SQLTransaction1.StartTransaction;
+    Except
+      // something went wrong, get out of here
+      success                  := False;
+      TrayIcon1.Destroy;
+      ShowMessage(captions_local[10]);
+      ErrorMsg := captions_local[10];
+      LogEvent := 'stop';
+      if LogSettings=0 Then
+      begin
+       logging();
+      end;
+      Halt;
     end;
-    Halt;
   end;
 
-  Try
-    // try to open DataSet
-    SQLQuery1.Open;
-  Except
-    // something went wrong, get out of here and rollback transaction
-    SQLTransaction1.Rollback;
+  if (success = true) Then
+  begin
+    Try
+      // try to open DataSet
+      SQLQuery1.Open;
+    Except
+      // something went wrong, get out of here and rollback transaction
+      success                  := False;
+      Try
+        SQLTransaction1.Rollback;
+      Except
+        success                := False;
+        //
+      end;
+    end;
   end;
 
   //IsClosed   := A1  <> SQLQuery1.Fields[1].AsInteger;
   //If IsClosed then
   //begin
+  if (success = true) Then
+  begin
        A1                     := SQLQuery1.Fields[1].AsInteger;
        msg                    := SQLQuery1.Fields[2].AsString;
        If A1_P <> A1 then
@@ -178,62 +200,71 @@ begin
           BlShowMessage       := true;
        end;
        TrayIcon1.BalloonHint  := msg;
+  end;
   //end;
 
-  if BlShowMessage then
+  if (success = true) Then
   begin
-    if (cnt mod 5 = 0) then
-    //if (cnt mod 5 = 0) or ShowMessageUserReq then
+    if BlShowMessage then
     begin
-          TrayIcon1.ShowBalloonHint;
-          if A1 = 1 then
-          begin
-             TrayIcon1.Icon.Assign(MyIconGreen);
-             {$IFDEF WINDOWS}
-             if IntSound = 1 then
-             begin
-                Try
-                sndPlaySound('green.wav',SND_NODEFAULT Or SND_ASYNC);
-                Except
-                ShowMessage('green.wav '+captions_local[11]);
-                TrayIcon1.Destroy;
-                ErrorMsg := 'green.wav '+captions_local[11];
-                LogEvent := 'stop';
-                if LogSettings=0 Then
-                begin
-                  logging();
-                end;
-                Halt;
-                end;
-             end;
-             {$ELSE}
-             {$ENDIF}
-          end
-          else
-          begin
-             TrayIcon1.Icon.Assign(MyIconRed);
-             {$IFDEF WINDOWS}
-             if IntSound = 1 then
-             begin
-                Try
-                sndPlaySound('red.wav',SND_NODEFAULT Or SND_ASYNC);
-                Except
-                ShowMessage('red.wav '+captions_local[11]);
-                TrayIcon1.Destroy;
-                ErrorMsg := 'red.wav '+captions_local[11];
-                LogEvent := 'stop';
-                if LogSettings=0 Then
-                begin
-                  logging();
-                end;
-                end;
-             end;
-             {$ELSE}
-             {$ENDIF}
-          end;
+      if (cnt mod 5 = 0) then
+      //if (cnt mod 5 = 0) or ShowMessageUserReq then
+      begin
+            TrayIcon1.ShowBalloonHint;
+            if A1 = 1 then
+            begin
+               TrayIcon1.Icon.Assign(MyIconGreen);
+               {$IFDEF WINDOWS}
+               if IntSound = 1 then
+               begin
+                  Try
+                  sndPlaySound('green.wav',SND_NODEFAULT Or SND_ASYNC);
+                  Except
+                  ShowMessage('green.wav '+captions_local[11]);
+                  TrayIcon1.Destroy;
+                  ErrorMsg := 'green.wav '+captions_local[11];
+                  LogEvent := 'stop';
+                  if LogSettings=0 Then
+                  begin
+                    logging();
+                  end;
+                  Halt;
+                  end;
+               end;
+               {$ELSE}
+               {$ENDIF}
+            end
+            else
+            begin
+               TrayIcon1.Icon.Assign(MyIconRed);
+               {$IFDEF WINDOWS}
+               if IntSound = 1 then
+               begin
+                  Try
+                  sndPlaySound('red.wav',SND_NODEFAULT Or SND_ASYNC);
+                  Except
+                  ShowMessage('red.wav '+captions_local[11]);
+                  TrayIcon1.Destroy;
+                  ErrorMsg := 'red.wav '+captions_local[11];
+                  LogEvent := 'stop';
+                  if LogSettings=0 Then
+                  begin
+                    logging();
+                  end;
+                  end;
+               end;
+               {$ELSE}
+               {$ENDIF}
+            end;
+      end;
     end;
+    cnt:=cnt+1;
   end;
-  cnt:=cnt+1;
+
+  if (success = false) then
+  begin
+    //
+  end;
 end;
 procedure TForm1.updatedb();
 begin
@@ -367,7 +398,6 @@ begin
   end;
 
   IsClosed:=False;
-  ButtonCheckClick(Self); // Hack for show icon on Windows 7. On Windows 8 and later works fine
   //d1 := WideCompareText(role,'admin-dba');
   //!!! req uses LazUtils, LConvEncoding !!!
   If  role <> 'admin-dba' then  //If DBConnection.UserName <> 'SYSDBA' then //WORKS ONLY WHEN SETTINGS.TXT IS ANSI
@@ -375,12 +405,12 @@ begin
      Hide();
      WindowState := wsMinimized;
   end;
+//  ButtonCheckClick(Self); // Hack for show icon on Windows 7. On Windows 8 and later works fine
 end;
 
 procedure TForm1.BtnCheckClick(Sender: TObject);
 begin
-    //ButtonCheck!
-    checking();
+  checking();
 end;
 
 procedure TForm1.btnApplyDelayedClick(Sender: TObject);
@@ -510,15 +540,15 @@ end;
 
 
 
-procedure TForm1.Timer1Timer(Sender: TObject);
+procedure TForm1.timerDBcheckTimer(Sender: TObject);
 begin
   checking();
 end;
 
 procedure TForm1.timerDelayedTimer(Sender: TObject);
 begin
-  updatedb();
-  timerDelayed.Enabled := False;
+  checking();
+  timerInit.Enabled:=False;
 end;
 
 procedure TForm1.ToggleBox1Change(Sender: TObject);
