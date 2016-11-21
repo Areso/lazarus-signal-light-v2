@@ -8,7 +8,7 @@ Check
 Hide message
 Turn on/off sound
 Exit
-DB Connection error; please, check server and settings.txt
+DB Connection error; please, check network, server and settings.txt
 file is corrupted, please re-install app
 DB Status
 Enter password to exit

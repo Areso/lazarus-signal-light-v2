@@ -212,6 +212,7 @@ object Form1: TForm1
     end
   end
   object timerDBcheck: TTimer
+    Enabled = False
     Interval = 5000
     OnTimer = timerDBcheckTimer
     left = 448

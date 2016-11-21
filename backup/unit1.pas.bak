@@ -2,7 +2,7 @@ unit Unit1;
 {
  This is free programm under GPLv2 and GPLv3 licenses.
  Authors: Anton Gladyshev, Egor Shishkin
- version 1.0.0.10 date 2016-11-11
+ version 1.0.0.10 date 2016-11-21
                       (YYYY-MM-DD)
 }
 {$mode objfpc}{$H+}
@@ -75,7 +75,7 @@ var
   Form1:          TForm1;
   BlShowMessage:  boolean;
   cnt:            integer;
-  MyIconGreen, MyIconRed:   TIcon;
+  MyIconGreen, MyIconRed, MyIconDisconnect:   TIcon;
   A1:             integer;  //status
   A1_P:           integer;  //previous status
   f:              text;     //settings
@@ -99,7 +99,7 @@ var
   pwd:            boolean;
   LogSettings:    integer;
   msg:            string;
-
+  success:        boolean;
 implementation
 
 {$R *.lfm}
@@ -122,21 +122,25 @@ begin
 end;
 
 procedure TForm1.checking();
-var
-  success: boolean;
+//var
+ //
 begin
   //init
-  success: false;
+  success:= false;
+
   //checking
   SQLQuery1.Close;
   SQLQuery1.SQL.Clear;
   SQLQuery1.SQL.Text         := 'SELECT * FROM MAIN';
+
   Try
     DBConnection.Connected   := True;
     success                  := True;
+    //ShowMessage('Success change to '+BoolToStr(success)+' dbconnection.connected');
   Except
     // something went wrong, get out of here
     success                  := False;
+    {
     TrayIcon1.Destroy;
     ShowMessage(captions_local[10]);
     ErrorMsg := captions_local[10];
@@ -146,6 +150,7 @@ begin
      logging();
     end;
     Halt;
+    }
   end;
 
   TrayIcon1.BalloonTimeout := 5000;
@@ -158,6 +163,7 @@ begin
     Except
       // something went wrong, get out of here
       success                  := False;
+      {
       TrayIcon1.Destroy;
       ShowMessage(captions_local[10]);
       ErrorMsg := captions_local[10];
@@ -167,6 +173,7 @@ begin
        logging();
       end;
       Halt;
+      }
     end;
   end;
 
@@ -259,6 +266,16 @@ begin
       end;
     end;
     cnt:=cnt+1;
+  end;
+
+
+  if (success = false) then
+  begin
+
+    TrayIcon1.Icon.Assign(MyIconDisconnect);
+    TrayIcon1.ShowBalloonHint;
+    TrayIcon1.BalloonHint    := captions_local[10];
+    BlShowMessage            := true;
   end;
 end;
 procedure TForm1.updatedb();
@@ -383,6 +400,20 @@ begin
     MyIconRed.LoadFromFile('traffic2-red.ico');
   Except
     ErrorMsg := 'traffic2-red.ico '+captions_local[11];
+    LogEvent := 'stop';
+    ShowMessage(ErrorMsg);
+    if LogSettings=0 Then
+    begin
+      logging();
+    end;
+    Halt;
+  end;
+
+  MyIconDisconnect             := TIcon.Create;
+  Try
+    MyIconDisconnect.LoadFromFile('traffic2-disconnect.ico');
+  Except
+    ErrorMsg := 'traffic2-disconnect.ico '+captions_local[11];
     LogEvent := 'stop';
     ShowMessage(ErrorMsg);
     if LogSettings=0 Then
@@ -542,8 +573,9 @@ end;
 
 procedure TForm1.timerDelayedTimer(Sender: TObject);
 begin
-  checking();
   timerInit.Enabled:=False;
+  checking();
+  //ShowMessage('Timer init');
 end;
 
 procedure TForm1.ToggleBox1Change(Sender: TObject);
