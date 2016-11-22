@@ -1,3 +1,15 @@
+v 1.0.0.13
++added password changing ability instead of hardcode
+
+v 1.0.0.12
+=bugfixes
+
+v 1.0.0.11
++added network-aware behaviour. 
+Instead of closing, now it's awaiting network recovery as
+well as indicates of the problem and suggest checking
+network, server and a settings file.
+
 v 1.0.0.10
 =fixed bug with old Update button
 

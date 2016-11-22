@@ -15,3 +15,10 @@ Enter password to exit
 Password incorrect!
 Delayed update, min
 Apply
+Symbols for use in password:
+Current password:
+New password:
+Confirm password:
+Change password
+Password changed
+Error, password hasn't changed

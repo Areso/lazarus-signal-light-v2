@@ -5,4 +5,5 @@ ru
 mydb
 SYSDBA
 masterkey
-0
+1
+MTIz

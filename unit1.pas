@@ -2,7 +2,7 @@ unit Unit1;
 {
  This is free programm under GPLv2 and GPLv3 licenses.
  Authors: Anton Gladyshev, Egor Shishkin
- version 1.0.0.12 date 2016-11-21
+ version 1.0.0.13 date 2016-11-22
                       (YYYY-MM-DD)
 }
 {$mode objfpc}{$H+}
@@ -24,13 +24,17 @@ type
 TForm1 = class(TForm)
     BtnCheck: TButton;
     BtnUpdate: TButton;
+    BtnChangePass: TButton;
     DataSource1: TDataSource;
     DBConnection: TIBConnection;
     DBGrid1: TDBGrid;
     ButtonCheck: TMenuItem;
     ButtonExit: TMenuItem;
     ButtonHide: TMenuItem;
+    EditNewPassword: TEdit;
+    EditConfirmPassword: TEdit;
     EditInterval: TEdit;
+    EditCurrentPassword: TEdit;
     EditStatus: TEdit;
     EditComment: TEdit;
     Label1: TLabel;
@@ -38,6 +42,11 @@ TForm1 = class(TForm)
     Label3: TLabel;
     ButtonSound: TMenuItem;
     Label4: TLabel;
+    Label5: TLabel;
+    Label6: TLabel;
+    Label7: TLabel;
+    Label8: TLabel;
+    Label9: TLabel;
     PopupMenu1: TPopupMenu;
     SQLQuery1: TSQLQuery;
     SQLTransaction1: TSQLTransaction;
@@ -48,6 +57,7 @@ TForm1 = class(TForm)
     TrayIcon1: TTrayIcon;
     procedure btnApplyDelayedClick(Sender: TObject);
     procedure BtnCheckClick(Sender: TObject);
+    procedure BtnChangePassClick(Sender: TObject);
     procedure BtnUpdateClick(Sender: TObject);
     procedure ButtonHideClick(Sender: TObject);
     procedure ButtonExitClick(Sender: TObject);
@@ -70,6 +80,7 @@ TForm1 = class(TForm)
     procedure checking();
     procedure logging();
     procedure updatedb();
+    procedure writesettings();
   end;
 
 //const
@@ -90,8 +101,10 @@ var
   DBUsername:     widestring;
   DBPassword:     widestring;
   lang:           widestring;
+  passwordString64: widestring;
+  passwordString: widestring;
   f_lang:         text; //localisation
-  captions_local: array[0..16] of widestring; //total 17 lines
+  captions_local: array[0..23] of widestring; //total 24 lines
   i:              integer; //cycle counter
   d1:             integer; //debug purpose
   f_log:          text; //log file
@@ -109,6 +122,36 @@ implementation
 {$R *.lfm}
 
 { TForm1 }
+procedure TForm1.writesettings();
+begin
+  Try
+    AssignFile(f,'settings.txt');//this should be universal
+    rewrite(f);
+    role := UTF8ToUTF8BOM(role);
+    writeln(f, role);
+    role := UTF8BOMToUTF8(role);
+    writeln(f, IntSound);
+    writeln(f, lang);
+    writeln(f, HostNameDB);
+    writeln(f, DBName);
+    writeln(f, DBUsername);
+    writeln(f, DBPassword);
+    writeln(f, LogSettings);
+    writeln(f, passwordString64);
+    CloseFile(f);
+  Except
+   ShowMessage(captions_local[10]);
+   TrayIcon1.Destroy;
+   ErrorMsg := 'captions_local[10]';
+   LogEvent := 'stop';
+   if LogSettings=0 Then
+   begin
+      logging();
+   end;
+   Halt;
+  end;
+end;
+
 procedure TForm1.logging();
 begin
   AssignFile(f_log, 'log.txt');
@@ -276,13 +319,43 @@ begin
 
   if (success = false) then
   begin
-
     TrayIcon1.Icon.Assign(MyIconDisconnect);
-    TrayIcon1.BalloonHint    := captions_local[10];
-    BlShowMessage            := true;
-    TrayIcon1.ShowBalloonHint;
+    if msg <> captions_local[10] then
+    begin
+      msg                      := captions_local[10];
+      BlShowMessage            := true;
+      TrayIcon1.BalloonHint    := msg;
+      TrayIcon1.ShowBalloonHint;
+    end
+    else
+    begin
+      BlShowMessage            := false;
+    end;
+
+    if BlShowMessage then
+    begin
+      {$IFDEF WINDOWS}
+      if IntSound = 1 then
+      begin
+        Try
+          sndPlaySound('lost.wav',SND_NODEFAULT Or SND_ASYNC);
+        Except
+          ShowMessage('lost.wav '+captions_local[11]);
+          TrayIcon1.Destroy;
+          ErrorMsg := 'lost.wav '+captions_local[11];
+          LogEvent := 'stop';
+          if LogSettings=0 Then
+            begin
+              logging();
+            end;
+          end;
+      end;
+      {$ELSE}
+      {$ENDIF}
+    end;
   end;
 end;
+
 procedure TForm1.updatedb();
 begin
   SQLQuery1.Close;
@@ -327,6 +400,7 @@ begin
     readln(f, DBUsername);
     readln(f, DBPassword);
     readln(f, LogSettings);
+    readln(f, passwordString64);
     CloseFile(f);
   Except
     // something went wrong, get out of here
@@ -349,12 +423,13 @@ begin
   AssignFile(f_lang, lang+'.txt');
   Try
     reset(f_lang);
-    While cnt<18 Do //total lines count(17) + 1
+    While cnt<24 Do //total lines count 24
     begin
       readln(f_lang,captions_local[cnt]);
       cnt:=cnt+1;
     end;
     CloseFile(f_lang);
+
   Except
     // something went wrong, get out of here
     ErrorMsg := lang+'.txt'+' file is corrupted, please re-install app';
@@ -363,6 +438,7 @@ begin
     logging();
     Halt;
   end;
+
 
   Form1.Caption            := captions_local[0];
   Label1.Caption           := captions_local[1];
@@ -376,6 +452,12 @@ begin
   ButtonExit.Caption       := captions_local[9];
   label4.Caption           := captions_local[15];
   ToggleBox1.Caption       := captions_local[16];
+  label9.Caption           := captions_local[17];
+  label5.Caption           := captions_local[18];
+  label6.Caption           := captions_local[19];
+  label7.Caption           := captions_local[20];
+  BtnChangePass.Caption    := captions_local[21];
+
   //captions_local[10] is error message for DB Connection error
   //captions_local[11] is error message for icon and audio assets loading error
   //captions_local[12] is used to be TrayIcon1.Hint
@@ -444,6 +526,28 @@ begin
   checking();
 end;
 
+procedure TForm1.BtnChangePassClick(Sender: TObject);
+begin
+
+  passwordString:=DecodeStringBase64(passwordString64);
+  if (EditCurrentPassword.Text = passwordString) Then
+  begin
+    if (EditNewPassword.Text = EditConfirmPassword.Text) Then
+    begin
+      passwordString   := EditNewPassword.Text;
+      passwordString64 := EncodeStringBase64(passwordString);
+      ShowMessage(captions_local[22]);
+      writesettings();
+    end
+    else
+    begin
+      ShowMessage(captions_local[23]);
+    end;
+  end
+  else
+      ShowMessage(captions_local[23]);
+end;
+
 procedure TForm1.btnApplyDelayedClick(Sender: TObject);
 begin
   timerDelayed.Interval := StrToInt(EditInterval.Text)*1000*60;
@@ -466,7 +570,8 @@ begin
   If  role <> 'admin-dba' then  //If DBConnection.UserName <> 'SYSDBA' then //WORKS ONLY WHEN SETTINGS.TXT IS ANSI
   begin
     pwd := InputQuery(captions_local[0], captions_local[13], pwd_ansi);
-    If pwd_ansi = 'GhjuhfvvbcnsHerbRh.rb' Then
+    passwordString:=DecodeStringBase64(passwordString64);
+    If pwd_ansi = passwordString Then
     begin
       TrayIcon1.Destroy;
       ErrorMsg := '';
@@ -545,35 +650,8 @@ begin
   begin
     IntSound := 1;
   end;
-
-  Try
-    AssignFile(f,'settings.txt');//this should be universal
-    rewrite(f);
-    role := UTF8ToUTF8BOM(role);
-    writeln(f, role);
-    role := UTF8BOMToUTF8(role);
-    writeln(f, IntSound);
-    writeln(f, lang);
-    writeln(f, HostNameDB);
-    writeln(f, DBName);
-    writeln(f, DBUsername);
-    writeln(f, DBPassword);
-    writeln(f, LogSettings);
-    CloseFile(f);
-  Except
-   ShowMessage(captions_local[10]);
-   TrayIcon1.Destroy;
-   ErrorMsg := 'captions_local[10]';
-   LogEvent := 'stop';
-   if LogSettings=0 Then
-   begin
-      logging();
-   end;
-   Halt;
-  end;
+  writesettings();
 end;
-
-
 
 procedure TForm1.timerDBcheckTimer(Sender: TObject);
 begin

@@ -1,8 +1,9 @@
 ﻿admin-dba
-0
-en
+1
+ru
 192.168.112.8
 mydb
 SYSDBA
 masterkey
 1
+MTIz

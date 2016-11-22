@@ -112,3 +112,28 @@
 22-11-2016 11:07 ,  , start , 
 22-11-2016 11:15 ,  , start , 
 22-11-2016 11:16 ,  , start , 
+22-11-2016 14:59 ,  , start , 
+22-11-2016 15:03 ,  , start , 
+22-11-2016 15:04 ,  , start , 
+22-11-2016 15:05 ,  , start , 
+22-11-2016 16:11 ,  , start , 
+22-11-2016 16:11 , admin-dba , stop , en.txt file is corrupted, please re-install app
+22-11-2016 16:13 ,  , start , 
+22-11-2016 16:13 , admin-dba , stop , en.txt file is corrupted, please re-install app
+22-11-2016 16:13 ,  , start , 
+22-11-2016 16:13 , admin-dba , stop , en.txt file is corrupted, please re-install app
+22-11-2016 16:13 ,  , start , 
+22-11-2016 16:13 , admin-dba , stop , en.txt file is corrupted, please re-install app
+22-11-2016 16:13 ,  , start , 
+22-11-2016 16:13 , admin-dba , stop , en.txt file is corrupted, please re-install app
+22-11-2016 16:14 ,  , start , 
+22-11-2016 16:14 ,  , start , 
+22-11-2016 16:14 ,  , start , 
+22-11-2016 16:14 ,  , start , 
+22-11-2016 16:15 ,  , start , 
+22-11-2016 16:17 ,  , start , 
+22-11-2016 16:18 ,  , start , 
+22-11-2016 16:20 ,  , start , 
+22-11-2016 16:31 ,  , start , 
+22-11-2016 16:33 ,  , start , 
+22-11-2016 16:41 ,  , start , 

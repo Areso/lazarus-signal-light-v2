@@ -1,12 +1,12 @@
 object Form1: TForm1
   Left = 372
-  Height = 318
+  Height = 432
   Top = 212
   Width = 528
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'Information'
-  ClientHeight = 318
+  ClientHeight = 432
   ClientWidth = 528
   Icon.Data = {
     7E04000000000100010010100000010020006804000016000000280000001000
@@ -63,10 +63,10 @@ object Form1: TForm1
     TabStop = False
   end
   object BtnCheck: TButton
-    Left = 432
+    Left = 368
     Height = 25
     Top = 223
-    Width = 88
+    Width = 152
     Caption = 'Check'
     OnClick = BtnCheckClick
     TabOrder = 4
@@ -83,8 +83,8 @@ object Form1: TForm1
   object BtnUpdate: TButton
     Left = 96
     Height = 25
-    Top = 224
-    Width = 88
+    Top = 223
+    Width = 120
     Caption = 'Update'
     OnClick = BtnUpdateClick
     TabOrder = 3
@@ -108,7 +108,7 @@ object Form1: TForm1
   object Label3: TLabel
     Left = 24
     Height = 15
-    Top = 191
+    Top = 199
     Width = 61
     Caption = 'COMMENT'
     ParentColor = False
@@ -129,23 +129,102 @@ object Form1: TForm1
     ParentColor = False
   end
   object EditInterval: TEdit
-    Left = 224
+    Left = 264
     Height = 23
-    Top = 272
+    Top = 270
     Width = 80
     Alignment = taRightJustify
     TabOrder = 5
     Text = '0'
   end
   object ToggleBox1: TToggleBox
-    Left = 304
+    Left = 368
     Height = 25
-    Top = 272
-    Width = 96
+    Top = 270
+    Width = 152
     Caption = 'ToggleBox1'
     OnChange = ToggleBox1Change
     OnClick = ToggleBox1Click
     TabOrder = 6
+  end
+  object Label5: TLabel
+    Left = 24
+    Height = 15
+    Top = 352
+    Width = 96
+    Caption = 'Current password:'
+    ParentColor = False
+  end
+  object Label6: TLabel
+    Left = 24
+    Height = 15
+    Top = 380
+    Width = 80
+    Caption = 'New password:'
+    ParentColor = False
+  end
+  object BtnChangePass: TButton
+    Left = 368
+    Height = 25
+    Top = 398
+    Width = 152
+    Caption = 'Change password'
+    OnClick = BtnChangePassClick
+    TabOrder = 7
+  end
+  object Label7: TLabel
+    Left = 24
+    Height = 15
+    Top = 408
+    Width = 100
+    Caption = 'Confirm password:'
+    ParentColor = False
+  end
+  object EditCurrentPassword: TEdit
+    Left = 208
+    Height = 23
+    Top = 344
+    Width = 136
+    EchoMode = emPassword
+    PasswordChar = '*'
+    TabOrder = 8
+    Text = '0'
+  end
+  object EditNewPassword: TEdit
+    Left = 208
+    Height = 23
+    Top = 372
+    Width = 136
+    EchoMode = emPassword
+    PasswordChar = '*'
+    TabOrder = 9
+    Text = '0'
+  end
+  object EditConfirmPassword: TEdit
+    Left = 208
+    Height = 23
+    Top = 400
+    Width = 136
+    EchoMode = emPassword
+    PasswordChar = '*'
+    TabOrder = 10
+    Text = '0'
+  end
+  object Label8: TLabel
+    Left = 288
+    Height = 15
+    Top = 320
+    Width = 53
+    Caption = 'a-zA-Z0-9'
+    ParentColor = False
+  end
+  object Label9: TLabel
+    Left = 24
+    Height = 15
+    Top = 320
+    Width = 86
+    Caption = 'symbols for use:'
+    ParentColor = False
   end
   object DBConnection: TIBConnection
     Connected = False
@@ -214,19 +293,19 @@ object Form1: TForm1
   object timerDBcheck: TTimer
     Interval = 5000
     OnTimer = timerDBcheckTimer
-    left = 448
-    top = 248
+    left = 432
+    top = 312
   end
   object timerDelayed: TTimer
     Enabled = False
     OnTimer = timerDelayedTimer
-    left = 488
-    top = 272
+    left = 496
+    top = 312
   end
   object timerInit: TTimer
     Interval = 10
     OnTimer = timerDelayedTimer
-    left = 408
-    top = 272
+    left = 368
+    top = 312
   end
 end
