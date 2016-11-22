@@ -2,7 +2,7 @@ unit Unit1;
 {
  This is free programm under GPLv2 and GPLv3 licenses.
  Authors: Anton Gladyshev, Egor Shishkin
- version 1.0.0.10 date 2016-11-21
+ version 1.0.0.12 date 2016-11-21
                       (YYYY-MM-DD)
 }
 {$mode objfpc}{$H+}
@@ -11,8 +11,12 @@ interface
 
 uses
   Classes, SysUtils, IBConnection, sqldb, db, FileUtil, Forms, Controls,
-  Graphics, Dialogs, DbCtrls, DBGrids, StdCtrls, ExtCtrls, LazUtils, LConvEncoding,
-  Menus{$IFDEF WINDOWS}, MMSystem;{$ELSE};{$ENDIF}
+  Graphics, Dialogs, DbCtrls, DBGrids, StdCtrls, ExtCtrls,
+  base64, LazUtils, LConvEncoding, Menus{$IFDEF WINDOWS}, MMSystem;{$ELSE};{$ENDIF}
+  //bases64  - encode and decode //FPC
+  //MMSystem - audio system in Windows //Windows Only
+  //LazUtils, LConvEncoding - convertation UTF8+BOM to UTF8 and otherwise //FPC
+  //Menus    - TrayIcon menu //FPC
 type
 
   { TForm1 }
@@ -140,6 +144,7 @@ begin
   Except
     // something went wrong, get out of here
     success                  := False;
+    //ShowMessage('Success change to '+BoolToStr(success)+' dbconnection.disconnected');
     {
     TrayIcon1.Destroy;
     ShowMessage(captions_local[10]);
@@ -507,10 +512,14 @@ end;
 procedure TForm1.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 begin
   //Good habbit to close connection and commit
-  If SQLTransaction1.Active Then SQLTransaction1.Commit;
-  SQLQuery1.Close;
-  DBConnection.CloseTransactions;
-  DBConnection.Close;
+  Try
+    If SQLTransaction1.Active Then SQLTransaction1.Commit;
+    SQLQuery1.Close;
+    DBConnection.CloseTransactions;
+    DBConnection.Close;
+  Except
+    //
+  end;
   TrayIcon1.Destroy;
   ErrorMsg := '';
   LogEvent := 'stop';
