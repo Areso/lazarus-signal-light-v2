@@ -1,3 +1,6 @@
+v 1.0.0.14
+=fixed bug with delayed update
+
 v 1.0.0.13
 +added password changing ability instead of hardcode
 

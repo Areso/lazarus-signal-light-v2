@@ -17,7 +17,7 @@
     <VersionInfo>
       <UseVersionInfo Value="True"/>
       <MajorVersionNr Value="1"/>
-      <BuildNr Value="13"/>
+      <BuildNr Value="14"/>
       <StringTable CompanyName="Anton Gladyshev" InternalName="Signal-light" LegalCopyright="Anton Gladyshev" OriginalFilename="signal-light.exe" ProductName="Signal-light" ProductVersion=""/>
     </VersionInfo>
     <BuildModes Count="1">

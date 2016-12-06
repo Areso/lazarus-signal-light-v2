@@ -2,7 +2,7 @@ unit Unit1;
 {
  This is free programm under GPLv2 and GPLv3 licenses.
  Authors: Anton Gladyshev, Egor Shishkin
- version 1.0.0.13 date 2016-11-22
+ version 1.0.0.14 date 2016-12-06
                       (YYYY-MM-DD)
 }
 {$mode objfpc}{$H+}
@@ -69,6 +69,7 @@ TForm1 = class(TForm)
     procedure ButtonSoundClick(Sender: TObject);
     procedure timerDBcheckTimer(Sender: TObject);
     procedure timerDelayedTimer(Sender: TObject);
+    procedure timerInitTimer(Sender: TObject);
     procedure ToggleBox1Change(Sender: TObject);
     procedure ToggleBox1Click(Sender: TObject);
     procedure TrayIcon1Click(Sender: TObject);
@@ -660,9 +661,15 @@ end;
 
 procedure TForm1.timerDelayedTimer(Sender: TObject);
 begin
+  timerDelayed.Enabled:=False;
+  ToggleBox1.Checked:=False;
+  updatedb();
+end;
+
+procedure TForm1.timerInitTimer(Sender: TObject);
+begin
   timerInit.Enabled:=False;
   checking();
-  //ShowMessage('Timer init');
 end;
 
 procedure TForm1.ToggleBox1Change(Sender: TObject);
@@ -682,10 +689,18 @@ end;
 
 procedure TForm1.ToggleBox1Click(Sender: TObject);
 begin
- // if ToggleBox1.Checked = True then
- //   ShowMessage('do it!');
- // if ToggleBox1.Checked = False then
- //   ShowMessage('don''t do it');
+  {
+  if ToggleBox1.Checked = True then
+  begin
+    timerDelayed.Interval := StrToInt(EditInterval.Text)*1000*60;
+    timerDelayed.Enabled  := True;
+  end;
+  if ToggleBox1.Checked = False then
+  begin
+    timerDelayed.Interval := StrToInt(EditInterval.Text)*1000*60;
+    timerDelayed.Enabled  := False;
+  end;
+  }
 end;
 
 procedure TForm1.TrayIcon1Click(Sender: TObject);
